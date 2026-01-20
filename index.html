@@ -16,6 +16,37 @@ button:hover{opacity:0.9;}
 #cart {background:#fff; padding:20px; margin:20px auto; max-width:400px; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.1);}
 #cart h2 {margin-top:0;}
 form input, form select, form button {width:100%; padding:10px; margin:8px 0; border-radius:8px; border:1px solid #ddd;}
+#cart-icon{
+  position:fixed;
+  top:15px;
+  left:15px;
+  background:#000;
+  color:#fff;
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:22px;
+  z-index:1000;
+}
+
+#cart-count{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  background:red;
+  color:#fff;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 </style>
 </head>
 <body>
@@ -23,7 +54,12 @@ form input, form select, form button {width:100%; padding:10px; margin:8px 0; bo
 <header>
 <h1>Local Brands Store</h1>
 <p>اختار منتجاتك واستلمها لحد باب البيت</p>
+<div id="cart-icon" onclick="openCartPage()">
+  🛒
+  <span id="cart-count">0</span>
+</div>
 </header>
+  
 
 <!-- المنتجات -->
 <div class="container">
@@ -105,17 +141,23 @@ function addToCart(index){
 }
 
 function updateCart(){
-  // إظهار السلة فقط لو فيها منتجات
   cartDiv.style.display = cart.length>0 ? "block":"none";
   cartItemsUl.innerHTML = "";
   let total = 0;
-  cart.forEach((item,i)=>{
+
+  cart.forEach(item=>{
     const li = document.createElement('li');
     li.textContent = `${item.name} - ${item.price} جنيه`;
     cartItemsUl.appendChild(li);
     total += item.price;
   });
+
   totalSpan.textContent = total;
+
+  // تحديث عدّاد الكارت
+  document.getElementById("cart-count").textContent = cart.length;
+}
+
 }
 
 // عند الضغط على Checkout
