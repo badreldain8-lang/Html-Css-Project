@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>Cart</title>
+<style>
+body { font-family: Arial; background:#f5f5f5; margin:20px; }
+img { width:80px; vertical-align:middle; margin-right:10px; }
+button { padding:5px 10px; cursor:pointer; margin-left:5px; }
+.qty { width:30px; text-align:center; }
+</style>
 </head>
 <body>
 
@@ -21,58 +27,44 @@ function render(){
   box.innerHTML = "";
   total = 0;
 
-  <script>
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let box = document.getElementById("items");
-let total = 0;
+  if(cart.length === 0){
+    box.innerHTML = "السلة فاضية";
+  } else {
+    cart.forEach((item,i)=>{
+      total += item.price * (item.qty || 1);
+      box.innerHTML += `
+        <p>
+          <img src="${item.img}" alt="${item.name}">
+          ${item.name} - ${item.price} جنيه
+          <button onclick="decreaseQty(${i})">-</button>
+          <input type="text" class="qty" id="qty${i}" value="${item.qty || 1}" readonly>
+          <button onclick="increaseQty(${i})">+</button>
+          <button onclick="removeItem(${i})">❌</button>
+        </p>
+      `;
+    });
+  }
 
-function render(){
-  box.innerHTML = "";
-  total = 0;
-  cart.forEach((item, i) => {
-    total += item.price;
-    box.innerHTML += `
-      <p>
-        ${item.name} - ${item.price} جنيه
-        <button onclick="removeItem(${i})">❌</button>
-      </p>
-    `;
-  });
-  document.getElementById("total").innerText =
-    "الإجمالي: " + total + " جنيه";
+  document.getElementById("total").innerText = "الإجمالي: " + total + " جنيه";
+  localStorage.setItem("cart", JSON.stringify(cart)); // حفظ كل تغيير
 }
 
 function removeItem(i){
   cart.splice(i,1);
-  localStorage.setItem("cart", JSON.stringify(cart));
   render();
 }
 
-function goCheckout(){
-  window.location.href = "checkout.html";
+function increaseQty(i){
+  cart[i].qty = (cart[i].qty || 1) + 1;
+  render();
 }
 
-// show cart on page load
-render();
-
-
-  cart.forEach((item, i) => {
-    total += item.price;
-    box.innerHTML += `
-      <p>
-        ${item.name} - ${item.price} جنيه
-        <button onclick="removeItem(${i})">❌</button>
-      </p>
-    `;
-  });
-
-  document.getElementById("total").innerText =
-    "الإجمالي: " + total + " جنيه";
-}
-
-function removeItem(i){
-  cart.splice(i,1);
-  localStorage.setItem("cart", JSON.stringify(cart));
+function decreaseQty(i){
+  if(cart[i].qty > 1){
+    cart[i].qty--;
+  } else {
+    cart.splice(i,1);
+  }
   render();
 }
 
@@ -85,3 +77,4 @@ render();
 
 </body>
 </html>
+
