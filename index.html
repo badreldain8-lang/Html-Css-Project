@@ -25,6 +25,7 @@ form input, form select, form button {width:100%; padding:10px; margin:8px 0; bo
 <p>اختار منتجاتك واستلمها لحد باب البيت</p>
 </header>
 
+<!-- المنتجات -->
 <div class="container">
   <div class="products" id="products">
     <!-- المنتجات هتظهر هنا -->
@@ -39,17 +40,20 @@ form input, form select, form button {width:100%; padding:10px; margin:8px 0; bo
   <button id="checkout-btn">اكمل الطلب</button>
 </div>
 
-<!-- الفورم -->
-<form name="order" method="POST" data-netlify="true">
-  <input type="hidden" name="form-name" value="order">
-  <input type="text" name="name" placeholder="الاسم الكامل" required>
-  <input type="tel" name="phone" placeholder="رقم الموبايل" required>
-  <input type="text" name="address" placeholder="العنوان" required>
-  <input type="hidden" name="cart" id="cart-data">
-  <button type="submit">تأكيد الطلب</button>
-</form>
+<!-- الفورم: يظهر بعد الضغط على Checkout -->
+<div class="container" id="checkout-form" style="display:none;">
+  <h2>استكمال بياناتك</h2>
+  <form name="order" method="POST" data-netlify="true">
+    <input type="hidden" name="form-name" value="order">
+    <input type="text" name="name" placeholder="الاسم الكامل" required>
+    <input type="tel" name="phone" placeholder="رقم الموبايل" required>
+    <input type="text" name="address" placeholder="العنوان" required>
+    <input type="hidden" name="cart" id="cart-data">
+    <button type="submit">تأكيد الطلب</button>
+  </form>
+</div>
 
-<!-- Thanks Page -->
+<!-- صفحة Thanks -->
 <div class="container" id="thanks" style="display:none; text-align:center;">
   <h2>شكراً لثقتك بنا! ✅</h2>
   <p>سوف نتواصل معك قريبًا لتأكيد الطلب.</p>
@@ -74,7 +78,7 @@ const thanksDiv = document.getElementById('thanks');
 
 let cart = [];
 
-// استرجاع السلة من LocalStorage
+// استرجاع السلة من LocalStorage عند تحميل الصفحة
 window.onload = () => {
   const savedCart = localStorage.getItem('cart');
   if(savedCart) cart = JSON.parse(savedCart);
@@ -96,11 +100,12 @@ products.forEach((p,i)=>{
 
 function addToCart(index){
   cart.push(products[index]);
-  localStorage.setItem('cart', JSON.stringify(cart));
+  localStorage.setItem('cart', JSON.stringify(cart)); // حفظ السلة
   updateCart();
 }
 
 function updateCart(){
+  // إظهار السلة فقط لو فيها منتجات
   cartDiv.style.display = cart.length>0 ? "block":"none";
   cartItemsUl.innerHTML = "";
   let total = 0;
@@ -113,14 +118,15 @@ function updateCart(){
   totalSpan.textContent = total;
 }
 
+// عند الضغط على Checkout
 checkoutBtn.onclick = ()=>{
-  cartDataInput.value = JSON.stringify(cart);
-  checkoutFormDiv.style.display = "block";
-  cartDiv.style.display = "none";
-  localStorage.removeItem('cart'); // بعد الانتقال للفورم
+  cartDataInput.value = JSON.stringify(cart); // تمرير السلة للفورم
+  checkoutFormDiv.style.display = "block";    // اظهار الفورم
+  cartDiv.style.display = "none";             // اخفاء السلة
+  localStorage.removeItem('cart');            // مسح السلة بعد الانتقال للفورم
 }
 
-// بعد ارسال الفورم نقدر نظهر Thanks Page
+// بعد ارسال الفورم → عرض صفحة Thanks
 document.querySelector('form[name="order"]').addEventListener('submit', function(e){
   setTimeout(()=>{
     checkoutFormDiv.style.display="none";
@@ -131,3 +137,4 @@ document.querySelector('form[name="order"]').addEventListener('submit', function
 
 </body>
 </html>
+
