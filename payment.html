@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Payment</title>
+<style>
+.payment-card { border:1px solid #ccc; padding:10px; text-align:center; margin:10px; display:inline-block; width:150px; }
+</style>
 </head>
 <body>
 
@@ -10,29 +13,33 @@
 <p>رقم الطلب: <strong id="orderNumber"></strong></p>
 
 <p>يرجى تحويل <strong>نصف قيمة الطلب</strong> على:</p>
-<ul>
-  <li>📱 فودافون كاش: 01015653338</li>
-  <li>🏦 InstaPay</li>
-</ul>
+<div style="display:flex; gap:20px; margin-top:10px;">
+  <div class="payment-card">
+    📱 فودافون كاش<br>01015653338
+  </div>
+  <div class="payment-card">
+    🏦 InstaPay<br>01015653338
+  </div>
+</div>
 
-<button onclick="confirmTransfer()">تم التحويل</button>
+<button id="transferBtn">تم التحويل</button>
 <br><br>
-<button onclick="goWhatsApp()">التواصل عبر واتساب</button>
+<button id="whatsappBtn" style="display:none;">التواصل عبر واتساب</button>
 
 <script>
-function getOrderNumber() {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('order');
-}
+// رقم الأوردر
+const urlParams = new URLSearchParams(window.location.search);
+const orderNumber = urlParams.get('order');
+document.getElementById("orderNumber").innerText = orderNumber;
 
-document.getElementById("orderNumber").innerText = getOrderNumber();
-
-function confirmTransfer(){
+// إظهار WhatsApp بعد الضغط على تم التحويل
+document.getElementById("transferBtn").onclick = function(){
   alert("من فضلك احتفظ بسكرين التحويل");
+  document.getElementById("whatsappBtn").style.display="inline-block";
 }
 
-function goWhatsApp(){
-  let phone = "201015653338";
+document.getElementById("whatsappBtn").onclick = function(){
+  let phone = "201015653338"; // رقمك
   let msg = encodeURIComponent(
     "تم التحويل، ودي سكرين التحويل + الرقم اللي تم التحويل منه"
   );
@@ -42,3 +49,4 @@ function goWhatsApp(){
 
 </body>
 </html>
+
