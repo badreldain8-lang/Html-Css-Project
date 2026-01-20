@@ -120,7 +120,8 @@ function updateCart(){
 
 // عند الضغط على Checkout
 checkoutBtn.onclick = ()=>{
-  cartDataInput.value = JSON.stringify(cart); // تمرير السلة للفورم
+  cartDataInput.value = cart.map(item => `${item.name} - ${item.price} جنيه`).join('\n');
+ // تمرير السلة للفورم
   checkoutFormDiv.style.display = "block";    // اظهار الفورم
   cartDiv.style.display = "none";             // اخفاء السلة
   localStorage.removeItem('cart');            // مسح السلة بعد الانتقال للفورم
