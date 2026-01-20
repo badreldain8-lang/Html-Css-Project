@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Payment</title>
+</head>
+<body>
+
+<h2>✅ تم إنشاء طلبك</h2>
+<p>رقم الطلب: <strong id="orderNumber"></strong></p>
+
+<p>يرجى تحويل <strong>نصف قيمة الطلب</strong> على:</p>
+<ul>
+  <li>📱 فودافون كاش: 01015653338</li>
+  <li>🏦 InstaPay</li>
+</ul>
+
+<button onclick="confirmTransfer()">تم التحويل</button>
+<br><br>
+<button onclick="goWhatsApp()">التواصل عبر واتساب</button>
+
+<script>
+function getOrderNumber() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('order');
+}
+
+document.getElementById("orderNumber").innerText = getOrderNumber();
+
+function confirmTransfer(){
+  alert("من فضلك احتفظ بسكرين التحويل");
+}
+
+function goWhatsApp(){
+  let phone = "201015653338";
+  let msg = encodeURIComponent(
+    "تم التحويل، ودي سكرين التحويل + الرقم اللي تم التحويل منه"
+  );
+  window.location.href = `https://wa.me/${phone}?text=${msg}`;
+}
+</script>
+
+</body>
+</html>
