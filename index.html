@@ -40,17 +40,14 @@ form input, form select, form button {width:100%; padding:10px; margin:8px 0; bo
 </div>
 
 <!-- الفورم -->
-<div class="container" id="checkout-form" style="display:none;">
-  <h2>استكمال بياناتك</h2>
-  <form name="order" method="POST" data-netlify="true">
-    <input type="hidden" name="form-name" value="order">
-    <input type="text" name="name" placeholder="الاسم الكامل" required>
-    <input type="tel" name="phone" placeholder="رقم الموبايل" required>
-    <input type="text" name="address" placeholder="العنوان" required>
-    <input type="hidden" name="cart" id="cart-data">
-    <button type="submit">تأكيد الطلب</button>
-  </form>
-</div>
+<form name="order" method="POST" data-netlify="true">
+  <input type="hidden" name="form-name" value="order">
+  <input type="text" name="name" placeholder="الاسم الكامل" required>
+  <input type="tel" name="phone" placeholder="رقم الموبايل" required>
+  <input type="text" name="address" placeholder="العنوان" required>
+  <input type="hidden" name="cart" id="cart-data">
+  <button type="submit">تأكيد الطلب</button>
+</form>
 
 <!-- Thanks Page -->
 <div class="container" id="thanks" style="display:none; text-align:center;">
