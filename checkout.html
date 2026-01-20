@@ -6,6 +6,22 @@
 </head>
 <body>
 
+  <label>اختر المحافظة:</label>
+<select id="governorate" onchange="updateShipping()">
+  <option value="">-- اختر --</option>
+  <option value="cairo">القاهرة</option>
+  <option value="giza">الجيزة</option>
+  <option value="alex">الإسكندرية</option>
+  <option value="other">باقي المحافظات</option>
+</select>
+
+<p>سعر الشحن: <span id="shipping">0</span> جنيه</p>
+<p>الإجمالي: <span id="total">0</span> جنيه</p>
+
+ <button onclick="goPayment()">تأكيد الطلب</button>
+<br><br>
+<button onclick="openWhatsApp()">إرسال على واتساب</button>
+ 
 <h2>إتمام الطلب</h2>
 
 <p>يرجى تحويل <strong>نصف قيمة الطلب</strong> على:</p>
@@ -16,6 +32,42 @@
 <button onclick="confirmPay()">تم التحويل</button>
 
 <br><br>
+
+  <script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+let shippingCost = 0;
+
+function updateShipping() {
+  const gov = document.getElementById("governorate").value;
+
+  if (gov === "cairo") shippingCost = 50;
+  else if (gov === "giza") shippingCost = 60;
+  else if (gov === "alex") shippingCost = 70;
+  else if (gov === "other") shippingCost = 80;
+  else shippingCost = 0;
+
+  document.getElementById("shipping").innerText = shippingCost;
+  document.getElementById("total").innerText = subtotal + shippingCost;
+}
+
+// initialize total
+updateShipping();
+
+// زر تأكيد الدفع يفتح صفحة الدفع
+function goPayment() {
+  window.location.href = "payment.html";
+}
+
+// زر واتساب يفتح مباشرة
+function openWhatsApp(){
+  let phone = "201000000000"; // رقمك
+  let msg = encodeURIComponent(
+    "تم التحويل، ودي سكرين التحويل + الرقم اللي تم التحويل منه"
+  );
+  window.location.href = `https://wa.me/${phone}?text=${msg}`;
+}
+</script>
 
 <button onclick="openWhats()">إرسال سكرين على واتساب</button>
 
