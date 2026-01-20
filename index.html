@@ -38,6 +38,27 @@ button { padding:8px 12px; cursor:pointer; }
   </div>
 </header>
 
+  <script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function addToCart(name, price){
+  cart.push({name, price});
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCount();
+}
+
+function updateCount(){
+  document.getElementById("cartCount").innerText = cart.length;
+}
+
+function openCart(){
+  window.location.href = "cart.html";
+}
+
+// initialize count on page load
+updateCount();
+</script>
+
 <div class="product">
   <h3>T-Shirt</h3>
   <p>300 جنيه</p>
