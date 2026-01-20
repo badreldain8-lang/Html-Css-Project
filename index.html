@@ -2,190 +2,73 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Local Brands Store</title>
-<style>
-body {font-family: Arial; direction:rtl; background:#f5f5f5; margin:0; padding:0;}
-header {background:#111; color:#fff; padding:20px; text-align:center;}
-.container {max-width:900px; margin:20px auto;}
-.products {display:flex; flex-wrap:wrap; gap:20px; justify-content:center;}
-.product {background:#fff; border-radius:12px; padding:10px; width:200px; box-shadow:0 5px 15px rgba(0,0,0,0.1); text-align:center;}
-.product img {width:100%; border-radius:8px;}
-button {padding:10px; margin-top:10px; width:100%; border:none; border-radius:8px; background:#000; color:#fff; cursor:pointer;}
-button:hover{opacity:0.9;}
-#cart {background:#fff; padding:20px; margin:20px auto; max-width:400px; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.1);}
-#cart h2 {margin-top:0;}
-form input, form select, form button {width:100%; padding:10px; margin:8px 0; border-radius:8px; border:1px solid #ddd;}
-#cart-icon{
-  position:fixed;
-  top:15px;
-  left:15px;
-  background:#000;
-  color:#fff;
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  font-size:22px;
-  z-index:1000;
-}
 
-#cart-count{
+<style>
+body { font-family: Arial; background:#f5f5f5; margin:0; }
+header { background:#111; color:#fff; padding:15px; position:relative; }
+.cart-icon {
   position:absolute;
-  top:-5px;
-  right:-5px;
-  background:red;
-  color:#fff;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  font-size:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  top:15px;
+  right:20px;
+  cursor:pointer;
 }
+.cart-icon span {
+  background:red;
+  color:white;
+  border-radius:50%;
+  padding:2px 7px;
+  font-size:12px;
+}
+.product {
+  background:#fff;
+  margin:15px;
+  padding:15px;
+}
+button { padding:8px 12px; cursor:pointer; }
 </style>
 </head>
+
 <body>
 
 <header>
-<h1>Local Brands Store</h1>
-<p>اختار منتجاتك واستلمها لحد باب البيت</p>
-<div id="cart-icon" onclick="openCartPage()">
-  🛒
-  <span id="cart-count">0</span>
-</div>
-</header>
-  
-
-<!-- المنتجات -->
-<div class="container">
-  <div class="products" id="products">
-    <!-- المنتجات هتظهر هنا -->
+  <h2>Local Brands Store</h2>
+  <div class="cart-icon" onclick="openCart()">
+    🛒 <span id="cartCount">0</span>
   </div>
+</header>
+
+<div class="product">
+  <h3>T-Shirt</h3>
+  <p>300 جنيه</p>
+  <button onclick="addToCart('T-Shirt',300)">Add to cart</button>
 </div>
 
-<!-- سلة المشتريات -->
-<div id="cart" style="display:none;">
-  <h2>سلة مشترياتك</h2>
-  <ul id="cart-items"></ul>
-  <p>السعر الكلي: <span id="total">0</span> جنيه</p>
-  <button id="checkout-btn">اكمل الطلب</button>
-</div>
-
-<!-- الفورم: يظهر بعد الضغط على Checkout -->
-<div class="container" id="checkout-form" style="display:none;">
-  <h2>استكمال بياناتك</h2>
-  <form name="order" method="POST" data-netlify="true">
-    <input type="hidden" name="form-name" value="order">
-    <input type="text" name="name" placeholder="الاسم الكامل" required>
-    <input type="tel" name="phone" placeholder="رقم الموبايل" required>
-    <input type="text" name="address" placeholder="العنوان" required>
-    <input type="hidden" name="cart" id="cart-data">
-    <button type="submit">تأكيد الطلب</button>
-  </form>
-</div>
-
-<!-- صفحة Thanks -->
-<div class="container" id="thanks" style="display:none; text-align:center;">
-  <h2>شكراً لثقتك بنا! ✅</h2>
-  <p>سوف نتواصل معك قريبًا لتأكيد الطلب.</p>
+<div class="product">
+  <h3>Hoodie</h3>
+  <p>700 جنيه</p>
+  <button onclick="addToCart('Hoodie',700)">Add to cart</button>
 </div>
 
 <script>
-// المنتجات
-const products = [
-  {name:"هودي أسود", price:700, img:"https://via.placeholder.com/200?text=هودي+أسود"},
-  {name:"هودي أبيض", price:750, img:"https://via.placeholder.com/200?text=هودي+أبيض"},
-  {name:"تيشيرت أوفرسايز", price:500, img:"https://via.placeholder.com/200?text=تيشيرت+أوفرسايز"}
-];
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-const productsDiv = document.getElementById('products');
-const cartDiv = document.getElementById('cart');
-const cartItemsUl = document.getElementById('cart-items');
-const totalSpan = document.getElementById('total');
-const checkoutBtn = document.getElementById('checkout-btn');
-const checkoutFormDiv = document.getElementById('checkout-form');
-const cartDataInput = document.getElementById('cart-data');
-const thanksDiv = document.getElementById('thanks');
-
-let cart = [];
-
-// استرجاع السلة من LocalStorage عند تحميل الصفحة
-window.onload = () => {
-  const savedCart = localStorage.getItem('cart');
-  if(savedCart) cart = JSON.parse(savedCart);
-  updateCart();
-};
-
-// عرض المنتجات
-products.forEach((p,i)=>{
-  const div = document.createElement('div');
-  div.className = "product";
-  div.innerHTML = `
-    <img src="${p.img}" alt="${p.name}">
-    <h3>${p.name}</h3>
-    <p>${p.price} جنيه</p>
-    <button onclick="addToCart(${i})">اضف الى السلة</button>
-  `;
-  productsDiv.appendChild(div);
-});
-
-function addToCart(index){
-  cart.push(products[index]);
-  localStorage.setItem('cart', JSON.stringify(cart)); // حفظ السلة
-  updateCart();
+function addToCart(name, price){
+  cart.push({name, price});
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCount();
 }
 
-function updateCart(){
-  cartDiv.style.display = cart.length>0 ? "block":"none";
-  cartItemsUl.innerHTML = "";
-  let total = 0;
-
-  cart.forEach(item=>{
-    const li = document.createElement('li');
-    li.textContent = `${item.name} - ${item.price} جنيه`;
-    cartItemsUl.appendChild(li);
-    total += item.price;
-  });
-
-  totalSpan.textContent = total;
-
-  // تحديث عدّاد الكارت
-  document.getElementById("cart-count").textContent = cart.length;
+function updateCount(){
+  document.getElementById("cartCount").innerText = cart.length;
 }
 
+function openCart(){
+  window.location.href = "cart.html";
 }
 
-// عند الضغط على Checkout
-checkoutBtn.onclick = ()=>{
-  cartDataInput.value = cart.map(item => `${item.name} - ${item.price} جنيه`).join('\n');
- // تمرير السلة للفورم
-  checkoutFormDiv.style.display = "block";    // اظهار الفورم
-  cartDiv.style.display = "none";             // اخفاء السلة
-  localStorage.removeItem('cart');            // مسح السلة بعد الانتقال للفورم
-}
-
-// بعد ارسال الفورم → عرض صفحة Thanks
-document.querySelector('form[name="order"]').addEventListener('submit', function(e){
-  setTimeout(()=>{
-    checkoutFormDiv.style.display="none";
-    thanksDiv.style.display="block";
-  }, 500);
-});
-
- <script>
-  function openCartPage() {
-    window.location.href = "cart.html";
-  }
-</script>
-
+updateCount();
 </script>
 
 </body>
 </html>
-
-
