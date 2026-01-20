@@ -21,6 +21,41 @@ function render(){
   box.innerHTML = "";
   total = 0;
 
+  <script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let box = document.getElementById("items");
+let total = 0;
+
+function render(){
+  box.innerHTML = "";
+  total = 0;
+  cart.forEach((item, i) => {
+    total += item.price;
+    box.innerHTML += `
+      <p>
+        ${item.name} - ${item.price} جنيه
+        <button onclick="removeItem(${i})">❌</button>
+      </p>
+    `;
+  });
+  document.getElementById("total").innerText =
+    "الإجمالي: " + total + " جنيه";
+}
+
+function removeItem(i){
+  cart.splice(i,1);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  render();
+}
+
+function goCheckout(){
+  window.location.href = "checkout.html";
+}
+
+// show cart on page load
+render();
+
+
   cart.forEach((item, i) => {
     total += item.price;
     box.innerHTML += `
