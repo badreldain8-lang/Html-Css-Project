@@ -6,7 +6,9 @@
 </head>
 <body>
 
-  <label>اختر المحافظة:</label>
+<h2>إتمام الطلب</h2>
+
+<label>اختر المحافظة:</label>
 <select id="governorate" onchange="updateShipping()">
   <option value="">-- اختر --</option>
   <option value="cairo">القاهرة</option>
@@ -18,50 +20,44 @@
 <p>سعر الشحن: <span id="shipping">0</span> جنيه</p>
 <p>الإجمالي: <span id="total">0</span> جنيه</p>
 
- <button onclick="goPayment()">تأكيد الطلب</button>
+<button onclick="goPayment()">تأكيد الطلب</button>
 <br><br>
 <button onclick="openWhatsApp()">إرسال على واتساب</button>
- 
-<h2>إتمام الطلب</h2>
 
-<p>يرجى تحويل <strong>نصف قيمة الطلب</strong> على:</p>
-
-<p>📱 فودافون كاش: 01000000000</p>
-<p>أو InstaPay</p>
-
-<button onclick="confirmPay()">تم التحويل</button>
-
-<br><br>
-
-  <script>
+<script>
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+let subtotal = cart.reduce((sum,item)=>sum+item.price,0);
 let shippingCost = 0;
 
-function updateShipping() {
+function updateShipping(){
   const gov = document.getElementById("governorate").value;
-
-  if (gov === "cairo") shippingCost = 50;
-  else if (gov === "giza") shippingCost = 60;
-  else if (gov === "alex") shippingCost = 70;
-  else if (gov === "other") shippingCost = 80;
-  else shippingCost = 0;
+  if(gov==='cairo') shippingCost=50;
+  else if(gov==='giza') shippingCost=60;
+  else if(gov==='alex') shippingCost=70;
+  else if(gov==='other') shippingCost=80;
+  else shippingCost=0;
 
   document.getElementById("shipping").innerText = shippingCost;
-  document.getElementById("total").innerText = subtotal + shippingCost;
+  document.getElementById("total").innerText = subtotal+shippingCost;
 }
 
-// initialize total
+// Initialize total
 updateShipping();
 
-// زر تأكيد الدفع يفتح صفحة الدفع
-function goPayment() {
-  window.location.href = "payment.html";
+// توليد رقم أوردر تلقائي
+let orderNumber = Math.floor(Math.random()*1000000);
+
+function goPayment(){
+  // حفظ الأوردر في LocalStorage
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  orders.push({orderNumber, cart, total: subtotal+shippingCost});
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  window.location.href="payment.html?order="+orderNumber;
 }
 
-// زر واتساب يفتح مباشرة
 function openWhatsApp(){
-  let phone = "201000000000"; // رقمك
+  let phone = "201015653338"; // رقمك
   let msg = encodeURIComponent(
     "تم التحويل، ودي سكرين التحويل + الرقم اللي تم التحويل منه"
   );
@@ -69,21 +65,6 @@ function openWhatsApp(){
 }
 </script>
 
-<button onclick="openWhats()">إرسال سكرين على واتساب</button>
-
-<script>
-function confirmPay(){
-  alert("تم تسجيل التحويل – برجاء إرسال سكرين");
-}
-
-function openWhats(){
-  let phone = "201000000000"; // رقمك
-  let msg = encodeURIComponent(
-    "تم التحويل، ده سكرين التحويل ورقم الموبايل اللي اتحول منه"
-  );
-  window.location.href = `https://wa.me/${phone}?text=${msg}`;
-}
-</script>
-
 </body>
 </html>
+
