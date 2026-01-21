@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Confirmation</title>
+<style>
+.success { font-size:50px; color:green; text-align:center; margin-top:50px; }
+button { display:block; margin:20px auto; padding:10px 20px; font-size:16px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="success">✔️</div>
+<p style="text-align:center;">تم تأكيد طلبك بنجاح!</p>
+
+<button id="whatsappBtn">التواصل عبر واتساب</button>
+
+<script>
+const phone = "201015653338";
+document.getElementById("whatsappBtn").onclick = function(){
+  const msg = encodeURIComponent("تم التحويل، ودي سكرين التحويل + الرقم اللي تم التحويل منه");
+  window.location.href = `https://wa.me/${phone}?text=${msg}`;
+};
+</script>
+
+</body>
+</html>
