@@ -69,12 +69,7 @@ function render(){
   document.getElementById("shipping").innerText = shippingCost;
   document.getElementById("total").innerText = subtotal+shippingCost;
 
-  localStorage.setItem("cart", JSON.stringify(cart));
-  updateCartIcon();
-}
-
-
-  document.getElementById("total").innerText = subtotal+shippingCost;
+  // تحديث LocalStorage والعداد
   localStorage.setItem("cart", JSON.stringify(cart));
   updateCartIcon();
 }
@@ -83,7 +78,6 @@ function removeItem(i){
   cart.splice(i,1);
   render(); // تحديث كامل بعد الحذف
 }
-
 
 function increaseQty(i){
   cart[i].qty++;
@@ -94,18 +88,6 @@ function decreaseQty(i){
   if(cart[i].qty>1) cart[i].qty--;
   else cart.splice(i,1);
   render(); // تحديث كامل بعد النقص
-}
-  
-function updateShipping(){
-  const gov = document.getElementById("governorate").value;
-  if(gov==='cairo') shippingCost=50;
-  else if(gov==='giza') shippingCost=60;
-  else if(gov==='alex') shippingCost=70;
-  else if(gov==='other') shippingCost=80;
-  else shippingCost=0;
-
-  document.getElementById("shipping").innerText = shippingCost;
-  document.getElementById("total").innerText = subtotal+shippingCost;
 }
 
 function goCheckout(){
@@ -123,12 +105,16 @@ function goCheckout(){
 }
 
 function updateCartIcon(){
-  document.getElementById("cartCount").innerText = cart.length;
+  document.getElementById("cartCount").innerText = cart.reduce((sum,item)=>sum+item.qty,0);
 }
 
+// استدعاء render عند فتح الصفحة
 render();
-document.getElementById("governorate").addEventListener("change", updateShipping);
+
+// تحديث الشحن عند تغيير المحافظة
+document.getElementById("governorate").addEventListener("change", render);
 </script>
+
 
 <div class="cart-icon" style="display:none;">
   <span id="cartCount"></span>
