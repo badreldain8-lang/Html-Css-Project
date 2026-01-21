@@ -50,13 +50,18 @@ function addToCart(name, price, img){
     cart.push({name, price, img, qty:1}); // لو جديد ضيفه
   }
 
+  // خزّن النسخة الجديدة
   localStorage.setItem("cart", JSON.stringify(cart));
-  updateCount(); // تحديث العداد مباشرة
+
+  // تحديث العداد حسب مجموع الكميات
+  updateCartCount();
 }
 
-
-function updateCount(){
-  document.getElementById("cartCount").innerText = cart.length;
+function updateCartCount(){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  // اجمع كل الكميات لكل منتج
+  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
+  document.getElementById("cartCount").innerText = count;
 }
 
 function openCart(){
@@ -64,8 +69,9 @@ function openCart(){
 }
 
 // تحديث العداد عند فتح الصفحة
-updateCount();
+updateCartCount();
 </script>
+
 
 </body>
 </html>
