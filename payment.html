@@ -3,88 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Payment</title>
+    <title>Secure Payment | Luxury Store</title>
     <style>
-        :root { --primary: #000; --bg: #f4f4f4; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .payment-card { background: #fff; max-width: 450px; width: 100%; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        :root { --primary: #000; --accent: #28a745; --bg: #f4f4f4; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        
+        .payment-card { 
+            background: #fff; max-width: 450px; width: 100%; border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden;
+        }
+
         .header { background: var(--primary); color: white; padding: 30px; text-align: center; }
+        .header h2 { margin: 0; font-weight: 300; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; }
         .total-amount { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
+        
         .content { padding: 30px; }
         
-        /* Payment Option Styling */
-        .option-container { margin-bottom: 25px; }
-        .option-box { 
+        /* Payment Options */
+        .payment-options { margin-bottom: 25px; }
+        .option-label { display: block; font-weight: bold; margin-bottom: 15px; color: #444; }
+        
+        .option-card {
             display: flex; align-items: center; background: #f9f9f9; padding: 15px; 
-            border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.3s;
+            border-radius: 12px; margin-bottom: 12px; cursor: pointer; border: 2px solid transparent;
+            transition: 0.3s;
         }
-        .option-box:hover { border-color: #ddd; }
-        input[type="radio"] { margin-right: 15px; transform: scale(1.2); accent-color: #000; }
-        .selected-option { border-color: #000 !important; background: #fff; }
+        .option-card:hover { border-color: #ddd; }
+        .option-card.active { border-color: var(--primary); background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        .option-card input { margin-right: 15px; transform: scale(1.3); accent-color: #000; }
+        .option-text { font-weight: 600; font-size: 1rem; }
 
-        .method-box { background: #f9f9f9; border: 1px solid #eee; border-radius: 16px; padding: 20px; margin-bottom: 15px; position: relative; }
-        .copy-btn { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: #000; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-        .confirm-btn { width: 100%; padding: 18px; background: #28a745; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        /* Transfer Details */
+        .method-box { 
+            background: #f9f9f9; border: 1px solid #eee; border-radius: 16px; 
+            padding: 20px; margin: 20px 0; position: relative;
+        }
+        .method-label { font-size: 0.75rem; color: #888; font-weight: bold; text-transform: uppercase; }
+        .method-value { font-size: 1.4rem; font-weight: bold; display: block; margin-top: 5px; color: #222; letter-spacing: 1px; }
+        
+        .copy-btn { 
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            background: var(--primary); color: white; border: none; padding: 8px 15px; 
+            border-radius: 8px; font-size: 0.75rem; cursor: pointer; transition: 0.2s;
+        }
+        .copy-btn:hover { opacity: 0.8; }
+
+        .screenshot-warning {
+            background: #fff3cd; color: #856404; padding: 12px; border-radius: 8px;
+            font-size: 0.85rem; font-weight: bold; text-align: center; margin-bottom: 20px;
+        }
+
+        .confirm-btn { 
+            width: 100%; padding: 18px; background: var(--accent); color: white; border: none; 
+            border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .confirm-btn:hover { background: #218838; transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
 <div class="payment-card">
     <div class="header">
-        <h2>Total Amount: <span id="totalVal">0</span> EGP</h2>
-        <div style="opacity: 0.8;">Order ID: <span id="orderNum"></span></div>
+        <h2>Order Amount</h2>
+        <div class="total-amount"><span id="displayTotal">0</span> EGP</div>
+        <div style="font-size: 0.8rem; opacity: 0.7;">Order ID: <span id="orderNum"></span></div>
     </div>
 
     <div class="content">
-        <label style="font-weight: bold; display: block; margin-bottom: 10px;">How much did you transfer?</label>
-        <div class="option-container">
-            <label class="option-box" id="boxFull">
-                <input type="radio" name="payAmount" value="Full Amount" checked onclick="highlight(this)">
-                <span>Full Amount (<span id="fullPrice">0</span> EGP)</span>
+        <span class="option-label">How much will you transfer now?</span>
+        
+        <div class="payment-options">
+            <label class="option-card active" id="labelFull">
+                <input type="radio" name="payChoice" value="Full Amount" checked onclick="updateSelection(this)">
+                <span class="option-text">Full Amount: <span id="fullPrice">0</span> EGP</span>
             </label>
-            <label class="option-box" id="boxHalf">
-                <input type="radio" name="payAmount" value="50% Deposit" onclick="highlight(this)">
-                <span>Half Amount (<span id="halfPrice">0</span> EGP)</span>
+            
+            <label class="option-card" id="labelHalf">
+                <input type="radio" name="payChoice" value="50% Deposit" onclick="updateSelection(this)">
+                <span class="option-text">50% Deposit: <span id="halfPrice">0</span> EGP</span>
             </label>
         </div>
 
         <div class="method-box">
-            <span style="font-size: 0.8rem; color: #888;">Vodafone Cash / InstaPay</span>
-            <span style="display: block; font-size: 1.3rem; font-weight: bold;" id="phoneNum">01015653338</span>
-            <button class="copy-btn" onclick="copyNum()">Copy</button>
+            <span class="method-label">Vodafone Cash / InstaPay</span>
+            <span class="method-value" id="phoneNumber">01015653338</span>
+            <button class="copy-btn" onclick="copyNumber()">Copy</button>
         </div>
 
-        <p style="color: red; font-size: 0.8rem; text-align: center; font-weight: bold;">⚠️ Screenshot required in the next step!</p>
+        <div class="screenshot-warning">
+            ⚠️ Please take a screenshot of the transfer!
+        </div>
 
-        <button class="confirm-btn" onclick="goToConfirmation()">Next: Send Proof ✅</button>
+        <button class="confirm-btn" onclick="processPayment()">I Have Transferred ✅</button>
     </div>
 </div>
 
 <script>
+    // 1. Get data from URL and LocalStorage
     const params = new URLSearchParams(window.location.search);
-    const total = parseInt(params.get('total'));
-    document.getElementById("totalVal").innerText = total;
+    const orderID = params.get('order') || "N/A";
+    const total = parseInt(params.get('total')) || 0;
+
+    // 2. Set UI values
+    document.getElementById("orderNum").innerText = orderID;
+    document.getElementById("displayTotal").innerText = total;
     document.getElementById("fullPrice").innerText = total;
-    document.getElementById("halfPrice").innerText = total / 2;
-    document.getElementById("orderNum").innerText = params.get('order');
+    document.getElementById("halfPrice").innerText = (total / 2);
 
-    function highlight(el) {
-        document.querySelectorAll('.option-box').forEach(b => b.classList.remove('selected-option'));
-        el.parentElement.classList.add('selected-option');
+    // 3. Highlight selection
+    function updateSelection(input) {
+        document.querySelectorAll('.option-card').forEach(card => card.classList.remove('active'));
+        input.parentElement.classList.add('active');
     }
 
-    function copyNum() {
-        navigator.clipboard.writeText("01015653338");
-        alert("Number copied!");
+    // 4. Copy Phone Number
+    function copyNumber() {
+        const num = document.getElementById("phoneNumber").innerText;
+        navigator.clipboard.writeText(num).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            btn.innerText = "Copied!";
+            btn.style.background = "#28a745";
+            setTimeout(() => {
+                btn.innerText = "Copy";
+                btn.style.background = "#000";
+            }, 2000);
+        });
     }
 
-    function goToConfirmation() {
-        const choice = document.querySelector('input[name="payAmount"]:checked').value;
+    // 5. Save choice and move to WhatsApp page
+    function processPayment() {
+        const choice = document.querySelector('input[name="payChoice"]:checked').value;
+        
+        // Save choice to localStorage so confirmation.html can read it
         localStorage.setItem("paymentChoice", choice);
-        window.location.href = `confirmation.html?order=${params.get('order')}`;
+        
+        window.location.href = `confirmation.html?order=${orderID}`;
     }
-    // Set initial highlight
-    highlight(document.querySelector('input[name="payAmount"]:checked'));
 </script>
+
 </body>
 </html>
