@@ -2,84 +2,144 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Your Cart</title>
+    <title>Your Shopping Cart</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background:#f4f7f6; margin:0; padding:20px; }
-        .container { max-width: 600px; margin: auto; background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .item { display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
-        .item img { width: 60px; height: 60px; border-radius: 8px; margin-right: 15px; }
+        :root { --primary: #000; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 700px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        h1 { font-size: 1.8rem; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .item { display: flex; align-items: center; padding: 20px 0; border-bottom: 1px solid #f0f0f0; }
+        .item img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin-right: 20px; border: 1px solid #eee; }
+        
         .item-info { flex-grow: 1; }
-        .item-size { background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        .summary { margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 10px; }
-        .checkout-btn { width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; margin-top: 15px; }
-        select { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; }
+        .item-name { display: block; font-weight: bold; font-size: 1.1rem; }
+        .item-details { color: #888; font-size: 0.85rem; margin-top: 4px; }
+        .item-size-tag { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; }
+
+        /* Quantity Controls */
+        .qty-wrapper { display: flex; align-items: center; background: #f8f8f8; border-radius: 10px; padding: 5px; border: 1px solid #eee; }
+        .qty-btn { 
+            width: 32px; height: 32px; border: none; background: #fff; border-radius: 8px; 
+            cursor: pointer; font-weight: bold; font-size: 1.1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: 0.2s;
+        }
+        .qty-btn:hover { background: var(--primary); color: white; }
+        .qty-num { width: 40px; text-align: center; font-weight: bold; font-size: 1rem; }
+
+        .item-price { font-weight: bold; margin-left: 20px; min-width: 80px; text-align: right; }
+
+        .summary { margin-top: 30px; padding: 20px; background: #fafafa; border-radius: 15px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; color: #555; }
+        .total-row { border-top: 2px solid #eee; margin-top: 15px; padding-top: 15px; font-weight: bold; font-size: 1.4rem; color: #000; }
+        
+        select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 1rem; }
+        .checkout-btn { 
+            width: 100%; padding: 18px; background: var(--primary); color: white; border: none; 
+            border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; 
+        }
+        .checkout-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Shopping Cart</h2>
-    <div id="items"></div>
+    <h1>Shopping Cart</h1>
+    <div id="cart-items"></div>
 
     <div class="summary">
-        <label>Shipping To:</label>
-        <select id="governorate">
-            <option value="">Select City</option>
+        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Deliver To:</label>
+        <select id="governorate" onchange="renderCart()">
+            <option value="">Choose your city...</option>
             <option value="cairo">Cairo (50 EGP)</option>
             <option value="giza">Giza (60 EGP)</option>
             <option value="alex">Alexandria (70 EGP)</option>
-            <option value="other">Other (80 EGP)</option>
+            <option value="other">Other Cities (80 EGP)</option>
         </select>
 
-        <p>Shipping: <span id="shipping">0</span> EGP</p>
-        <h3>Total: <span id="total">0</span> EGP</h3>
-        <button class="checkout-btn" onclick="goCheckout()">Checkout Now</button>
+        <div class="summary-row"><span>Subtotal</span> <span id="subtotal">0 EGP</span></div>
+        <div class="summary-row"><span>Shipping</span> <span id="shipping">0 EGP</span></div>
+        <div class="total-row"><span>Total</span> <span id="final-total">0 EGP</span></div>
+        
+        <button class="checkout-btn" onclick="goToCheckout()">Proceed to Shipping →</button>
     </div>
 </div>
 
 <script>
-function render(){
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let subtotal = 0;
-    const box = document.getElementById("items");
-    box.innerHTML = cart.length === 0 ? "<p>Empty cart.</p>" : "";
+    function renderCart() {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const container = document.getElementById("cart-items");
+        let subtotal = 0;
 
-    cart.forEach((item, i)=>{
-        subtotal += item.price * item.qty;
-        const p = document.createElement("div");
-        p.classList.add("item");
-        p.innerHTML = `
-            <img src="${item.img}">
-            <div class="item-info">
-                <strong>${item.name}</strong> <span class="item-size">Size: ${item.size}</span><br>
-                <small>${item.price} EGP x ${item.qty}</small>
-            </div>
-            <button onclick="removeItem(${i})" style="color:red; border:none; background:none; cursor:pointer;">✕</button>`;
-        box.appendChild(p);
-    });
+        container.innerHTML = cart.length === 0 ? "<p style='text-align:center; color:#999; padding:20px;'>Your cart is empty.</p>" : "";
 
-    const gov = document.getElementById("governorate").value;
-    let ship = gov==='cairo'?50:gov==='giza'?60:gov==='alex'?70:gov==='other'?80:0;
-    document.getElementById("shipping").innerText = ship;
-    const final = subtotal + ship;
-    document.getElementById("total").innerText = final;
-    localStorage.setItem("tempTotal", final);
-}
+        cart.forEach((item, index) => {
+            subtotal += (item.price * item.qty);
+            
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "item";
+            itemDiv.innerHTML = `
+                <img src="${item.img}" alt="product">
+                <div class="item-info">
+                    <span class="item-name">${item.name}</span>
+                    <div class="item-details">Size: <span class="item-size-tag">${item.size}</span></div>
+                </div>
+                <div class="qty-wrapper">
+                    <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                    <div class="qty-num">${item.qty}</div>
+                    <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+                </div>
+                <div class="item-price">${item.price * item.qty} EGP</div>
+            `;
+            container.appendChild(itemDiv);
+        });
 
-function removeItem(i){
-    const cart = JSON.parse(localStorage.getItem("cart"));
-    cart.splice(i,1);
-    localStorage.setItem("cart", JSON.stringify(cart));
-    render();
-}
+        // Calculate Shipping
+        const gov = document.getElementById("governorate").value;
+        let shipCost = 0;
+        if(gov === 'cairo') shipCost = 50;
+        else if(gov === 'giza') shipCost = 60;
+        else if(gov === 'alex') shipCost = 70;
+        else if(gov === 'other') shipCost = 80;
 
-document.getElementById("governorate").addEventListener("change", render);
-function goCheckout(){
-    if(!document.getElementById("governorate").value) return alert("Select a city");
-    localStorage.setItem("selectedGovernorate", document.getElementById("governorate").value);
-    window.location.href="checkout.html";
-}
-render();
+        const finalTotal = subtotal + shipCost;
+
+        document.getElementById("subtotal").innerText = subtotal + " EGP";
+        document.getElementById("shipping").innerText = shipCost + " EGP";
+        document.getElementById("final-total").innerText = finalTotal + " EGP";
+
+        // Save totals for the next page
+        localStorage.setItem("tempTotal", finalTotal);
+    }
+
+    function updateQty(index, change) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart[index].qty += change;
+
+        // If quantity is 0, remove the item
+        if(cart[index].qty <= 0) {
+            cart.splice(index, 1);
+        }
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+    }
+
+    function goToCheckout() {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const gov = document.getElementById("governorate").value;
+
+        if(cart.length === 0) return alert("Your cart is empty!");
+        if(!gov) return alert("Please select your city for shipping calculation.");
+
+        localStorage.setItem("selectedGovernorate", gov);
+        window.location.href = "checkout.html";
+    }
+
+    // Initial render
+    renderCart();
 </script>
+
 </body>
 </html>
