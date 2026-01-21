@@ -3,72 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Street Style & Co.</title>
+    <title>Modern Wear | Shop</title>
     <style>
         :root { --accent: #0071e3; --text: #1d1d1f; --grey: #86868b; }
-        body { font-family: -apple-system, sans-serif; background: #fff; margin: 0; color: var(--text); }
-        .nav { position: sticky; top: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f2; z-index: 100; }
+        body { font-family: -apple-system, sans-serif; background: #fff; margin: 0; color: var(--text); padding-top: 70px; }
+        .nav { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); padding: 15px 0; display: flex; justify-content: center; border-bottom: 1px solid #f2f2f2; z-index: 100; }
+        .nav-content { width: 90%; max-width: 1100px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
         .cart-btn { background: var(--text); color: #fff; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
         
-        .hero { padding: 40px 20px; text-align: center; background: #fbfbfd; }
-        .hero h1 { font-size: 2.5rem; margin: 0; }
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; max-width: 1100px; margin: 0 auto; }
+        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 30px; } }
         
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 20px; }
-        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; } }
-        
-        .product-card { background: #fff; border-radius: 12px; overflow: hidden; position: relative; }
-        .img-wrap { width: 100%; aspect-ratio: 1/1; background: #f5f5f7; overflow: hidden; }
+        .product-card { background: #fff; border-radius: 12px; transition: 0.3s; }
+        .img-wrap { width: 100%; aspect-ratio: 1/1; background: #f5f5f7; border-radius: 12px; overflow: hidden; }
         .img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s; }
         .product-card:hover img { transform: scale(1.05); }
         
-        .info { padding: 12px 5px; }
+        .info { padding: 12px 0; }
         .price { font-weight: 700; font-size: 1.1rem; margin: 5px 0; }
-        .title { color: var(--grey); font-size: 0.9rem; margin: 0; }
+        .title { color: var(--grey); font-size: 0.85rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d2d2d7; margin: 10px 0; font-size: 14px; outline: none; }
-        .add-btn { width: 100%; background: var(--accent); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #d2d2d7; margin: 8px 0; font-size: 12px; outline: none; }
+        .add-btn { width: 100%; background: var(--accent); color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="nav">
-    <div class="logo">STORE.</div>
-    <a href="cart.html" class="cart-btn">Cart (<span id="cartCount">0</span>)</a>
-</div>
-
-<div class="hero">
-    <h1>New Arrivals</h1>
-    <p style="color:var(--grey)">Premium quality for every generation.</p>
-</div>
-
-<div class="product-grid">
-    <div class="product-card">
-        <div class="img-wrap"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500"></div>
-        <div class="info">
-            <p class="title">Essential Cotton Tee</p>
-            <p class="price">450 EGP</p>
-            <select id="s1"><option value="">Select Size</option><option value="M">Medium</option><option value="L">Large</option></select>
-            <button class="add-btn" onclick="addToCart({id:1, name:'Cotton Tee', price:450, img:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'}, 's1')">Add to Cart</button>
-        </div>
+    <div class="nav-content">
+        <div class="logo">STORE.</div>
+        <a href="cart.html" class="cart-btn">Bag (<span id="cartCount">0</span>)</a>
     </div>
 </div>
 
+<div class="product-grid" id="grid">
+    </div>
+
 <script>
-    function updateIcon() {
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        document.getElementById("cartCount").innerText = cart.reduce((a,b)=>a+b.qty,0);
+    // THE PRODUCT DATABASE (10 Items)
+    const products = [
+        { id: 1, name: "Nike Air Force 1 '07", price: 2800, img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500", sizes: ["40","41","42","43","44"] },
+        { id: 2, name: "Essential Oversized Hoodie", price: 850, img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=500", sizes: ["S","M","L","XL"] },
+        { id: 3, name: "Nike Dunk Low Retro", price: 3200, img: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=500", sizes: ["41","42","43","44"] },
+        { id: 4, name: "Streetwear Cargo Pants", price: 950, img: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500", sizes: ["30","32","34","36"] },
+        { id: 5, name: "Nike Air Max 270", price: 3500, img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500", sizes: ["40","41","42","43"] },
+        { id: 6, name: "Classic Denim Jacket", price: 1200, img: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500", sizes: ["M","L","XL"] },
+        { id: 7, name: "Graphic Street Tee", price: 400, img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500", sizes: ["S","M","L","XL"] },
+        { id: 8, name: "Nike Blazer Mid '77", price: 2600, img: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500", sizes: ["41","42","43","44"] },
+        { id: 9, name: "Tech Fleece Joggers", price: 1100, img: "https://images.unsplash.com/photo-1580906853203-f493cea9ff28?w=500", sizes: ["S","M","L"] },
+        { id: 10, name: "Varsity Letterman Jacket", price: 1800, img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500", sizes: ["M","L","XL"] }
+    ];
+
+    function renderProducts() {
+        const grid = document.getElementById("grid");
+        grid.innerHTML = products.map(p => `
+            <div class="product-card">
+                <div class="img-wrap"><img src="${p.img}"></div>
+                <div class="info">
+                    <p class="title">${p.name}</p>
+                    <p class="price">${p.price} EGP</p>
+                    <select id="size-${p.id}">
+                        <option value="">Size</option>
+                        ${p.sizes.map(s => `<option value="${s}">${s}</option>`).join('')}
+                    </select>
+                    <button class="add-btn" onclick="addToCart(${p.id})">Add to Bag</button>
+                </div>
+            </div>
+        `).join('');
     }
-    function addToCart(p, sid) {
-        const s = document.getElementById(sid).value;
-        if(!s) return alert("Select Size");
+
+    function addToCart(pid) {
+        const p = products.find(x => x.id === pid);
+        const s = document.getElementById(`size-${pid}`).value;
+        if(!s) return alert("Please select a size");
+
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const exist = cart.find(x => x.id === p.id && x.size === s);
-        if(exist) exist.qty++; else cart.push({...p, size:s, qty:1});
+        const exist = cart.find(x => x.id === pid && x.size === s);
+        
+        if(exist) exist.qty++; 
+        else cart.push({ id: p.id, name: p.name, price: p.price, img: p.img, size: s, qty: 1 });
+        
         localStorage.setItem("cart", JSON.stringify(cart));
-        updateIcon();
+        updateCartCount();
     }
-    updateIcon();
+
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        document.getElementById("cartCount").innerText = cart.reduce((a, b) => a + b.qty, 0);
+    }
+
+    window.onload = () => { renderProducts(); updateCartCount(); };
 </script>
 </body>
 </html>
