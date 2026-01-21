@@ -2,37 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Confirming Order | Boutique</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Finish Order</title>
     <style>
-        body { font-family: 'Inter', sans-serif; text-align: center; padding: 100px 20px; background: #fff; }
-        .card { max-width: 450px; margin: 0 auto; }
-        h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 20px; }
-        .wa-btn { display: inline-block; padding: 20px 40px; background: #25D366; color: #fff; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 30px; letter-spacing: 1px; }
+        body { font-family: sans-serif; text-align: center; padding: 60px 20px; }
+        .btn { display: inline-block; background: #25D366; color: white; padding: 18px 40px; border-radius: 40px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-top: 20px; box-shadow: 0 4px 15px rgba(37,211,102,0.3); }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Order Prepared</h1>
-        <p>To finalize your purchase, click below to open WhatsApp. Please <strong>attach your payment screenshot</strong> to the message.</p>
-        <a href="#" class="wa-btn" onclick="send()">Complete Order on WhatsApp</a>
-    </div>
+    <div style="font-size:80px">✅</div>
+    <h2>Order Created</h2>
+    <p>Finalize your order by sending your details and screenshot via WhatsApp.</p>
+    <a href="#" class="btn" onclick="send()">Send via WhatsApp</a>
 
 <script>
     function send() {
-        const p = new URLSearchParams(window.location.search);
         const cart = JSON.parse(localStorage.getItem("cart"));
         const user = JSON.parse(localStorage.getItem("customerDetails"));
         const payType = localStorage.getItem("paymentChoice");
         const city = localStorage.getItem("selectedGovernorate");
         const total = localStorage.getItem("tempTotal");
+        const order = new URLSearchParams(window.location.search).get('order');
 
-        if(!cart || cart.length === 0) return alert("Cart empty");
-
-        let items = cart.map(i => `- ${i.name} (Size: ${i.size}) x${i.qty}`).join("%0A");
-        const msg = `*NEW ORDER* ✅%0A%0A*ID:* ${p.get('order')}%0A*Name:* ${user.name}%0A*Phone:* ${user.phone}%0A*Address:* ${user.addr}, ${city}%0A--------------------------%0A*Items:*%0A${items}%0A--------------------------%0A*Total:* ${total} EGP%0A*Payment:* ${payType}%0A--------------------------%0A_Attached is my transfer screenshot._`;
+        let items = cart.map(i => `- ${i.name} (${i.size}) x${i.qty}`).join("%0A");
+        const msg = `*NEW ORDER* ✅%0A%0A*ID:* ${order}%0A*Customer:* ${user.name}%0A*Address:* ${user.addr}, ${city}%0A%0A*Items:*%0A${items}%0A%0A*Total:* ${total} EGP%0A*Transfer:* ${payType}%0A%0A_Attached is my transfer screenshot._`;
         
-        // localStorage.removeItem("cart"); // Optional: Clear cart
         window.location.href = `https://wa.me/201015653338?text=${msg}`;
     }
 </script>
