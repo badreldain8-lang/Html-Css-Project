@@ -110,7 +110,9 @@ function goCheckout(){
 }
 
 function updateCartIcon(){
-  document.getElementById("cartCount").innerText = cart.reduce((sum,item)=>sum+item.qty,0);
+  // جمع كل الكميات في Cart
+  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
+  document.getElementById("cartCount").innerText = count;
 }
 
 // استدعاء render عند فتح الصفحة
