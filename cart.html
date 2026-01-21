@@ -1,144 +1,90 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>سلة الشراء</title>
-<style>
-body { font-family: Arial; background:#f5f5f5; margin:0; padding:20px; direction: rtl; }
-h1 { text-align:center; }
-#items { margin-top:20px; }
-.item { display:flex; justify-content:space-between; align-items:center; background:#fff; margin-bottom:10px; padding:10px; border-radius:5px; }
-.item-left { display:flex; align-items:center; }
-.item-left img { width:50px; height:50px; margin-left:10px; }
-.qty-controls { display:flex; align-items:center; }
-.qty-controls button { margin:0 5px; padding:5px 10px; cursor:pointer; }
-.qty-controls input { width:30px; text-align:center; }
-.cart-icon { position:fixed; top:10px; left:10px; background:red; color:white; border-radius:50%; padding:5px 10px; font-weight:bold; cursor:pointer; }
-</style>
+    <meta charset="UTF-8">
+    <title>سلة الشراء</title>
+    <style>
+        body { font-family: Arial; background:#f5f5f5; margin:0; padding:20px; }
+        .item { display:flex; justify-content:space-between; background:#fff; margin-bottom:10px; padding:10px; border-radius:5px; align-items:center; }
+        .item img { width:50px; height:50px; margin-left:10px; }
+        .controls button { padding:5px 10px; cursor:pointer; }
+        .cart-icon { position:fixed; top:10px; left:10px; background:red; color:white; border-radius:50%; padding:5px 10px; }
+    </style>
 </head>
 <body>
 
 <h1>سلة الشراء</h1>
 
-<select id="governorate">
-  <option value="">اختر المحافظة</option>
-  <option value="cairo">القاهرة</option>
-  <option value="giza">الجيزة</option>
-  <option value="alex">الإسكندرية</option>
-  <option value="other">أخرى</option>
+<select id="governorate" onchange="render()">
+    <option value="">اختر المحافظة</option>
+    <option value="50">القاهرة (50 ج)</option>
+    <option value="60">الجيزة (60 ج)</option>
+    <option value="70">الإسكندرية (70 ج)</option>
 </select>
 
-<div id="items"></div>
+<div id="cartList"></div>
 
-<p>الشحن: <span id="shipping">0</span> جنيه</p>
-<p>المجموع: <span id="total">0</span> جنيه</p>
+<p>الشحن: <span id="shipPrice">0</span> جنيه</p>
+<p>الإجمالي: <span id="totalPrice">0</span> جنيه</p>
 
-<button onclick="goCheckout()">إكمال الطلب</button>
+<button onclick="location.href='index.html'">العودة للتسوق</button>
 
-<div class="cart-icon" onclick="openCart()">
-  🛒 <span id="cartCount">0</span>
-</div>
+<div class="cart-icon">🛒 <span id="cartCount">0</span></div>
 
 <script>
-// Prevent white page error if BroadcastChannel is blocked
-let cartChannel;
-try {
-  cartChannel = new BroadcastChannel('cart_updates');
-} catch (e) {
-  console.warn("BroadcastChannel not supported or blocked");
-}
+    function render() {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const list = document.getElementById("cartList");
+        let subtotal = 0;
+        let totalQty = 0;
+        
+        list.innerHTML = "";
+        
+        cart.forEach((item, index) => {
+            subtotal += (item.price * item.qty);
+            totalQty += item.qty;
+            
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `
+                <div>
+                    <img src="${item.img}">
+                    <span>${item.name} (${item.price} ج)</span>
+                </div>
+                <div class="controls">
+                    <button onclick="changeQty(${index}, -1)">-</button>
+                    <span>${item.qty}</span>
+                    <button onclick="changeQty(${index}, 1)">+</button>
+                    <button onclick="remove(${index})">❌</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
 
-let box = document.getElementById("items");
+        const ship = parseInt(document.getElementById("governorate").value) || 0;
+        document.getElementById("shipPrice").innerText = ship;
+        document.getElementById("totalPrice").innerText = subtotal + ship;
+        document.getElementById("cartCount").innerText = totalQty;
+    }
 
-function updateCartIcon(){
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const count = cart.reduce((sum,item)=>sum + (Number(item.qty) || 0),0);
-  document.getElementById("cartCount").innerText = count;
-}
+    function changeQty(index, amt) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart[index].qty += amt;
+        if(cart[index].qty <= 0) cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        render();
+    }
 
-function render(){
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  let subtotal = 0;
-  let shippingCost = 0;
-  box.innerHTML = "";
+    function remove(index) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        render();
+    }
 
-  if(cart.length === 0){
-    box.innerHTML = "<p>السلة فاضية</p>";
-  } else {
-    cart.forEach((item, i)=>{
-      subtotal += (item.price * item.qty);
-
-      const p = document.createElement("div");
-      p.classList.add("item");
-      p.innerHTML = `
-        <div class="item-left">
-          <img src="${item.img}" alt="${item.name}">
-          <span>${item.name} - ${item.price} جنيه</span>
-        </div>
-        <div class="qty-controls">
-          <button class="decrease">-</button>
-          <input type="text" value="${item.qty}" readonly>
-          <button class="increase">+</button>
-          <button class="remove">❌</button>
-        </div>
-      `;
-      box.appendChild(p);
-
-      p.querySelector(".increase").addEventListener("click", ()=>{
-        cart[i].qty++;
-        saveAndUpdate(cart);
-      });
-
-      p.querySelector(".decrease").addEventListener("click", ()=>{
-        if(cart[i].qty > 1) cart[i].qty--;
-        else cart.splice(i,1);
-        saveAndUpdate(cart);
-      });
-
-      p.querySelector(".remove").addEventListener("click", ()=>{
-        cart.splice(i,1);
-        saveAndUpdate(cart);
-      });
-    });
-  }
-
-  const gov = document.getElementById("governorate").value || "";
-  shippingCost = gov==='cairo'?50:gov==='giza'?60:gov==='alex'?70:gov==='other'?80:0;
-
-  document.getElementById("shipping").innerText = shippingCost;
-  document.getElementById("total").innerText = subtotal + shippingCost;
-  updateCartIcon();
-}
-
-function saveAndUpdate(cartArray) {
-  localStorage.setItem("cart", JSON.stringify(cartArray));
-  if (cartChannel) cartChannel.postMessage('update'); 
-  render();
-}
-
-document.getElementById("governorate").addEventListener("change", render);
-
-function goCheckout(){
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const gov = document.getElementById("governorate").value;
-  if(cart.length===0) return alert("السلة فاضية");
-  if(!gov) return alert("من فضلك اختر المحافظة أولاً");
-  localStorage.setItem("selectedGovernorate", gov);
-  window.location.href="checkout.html";
-}
-
-function openCart(){ render(); }
-
-if (cartChannel) {
-  cartChannel.onmessage = (event) => {
-    if (event.data === 'update') render();
-  };
-}
-
-window.addEventListener('pageshow', render);
-render();
+    window.onpageshow = render;
+    render();
 </script>
-
 </body>
 </html>
 
