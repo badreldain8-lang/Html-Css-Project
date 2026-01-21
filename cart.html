@@ -40,20 +40,22 @@ h1 { text-align:center; }
 </div>
 
 <script>
+// جلب السلة من localStorage أو إنشاء واحدة جديدة
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let box = document.getElementById("items");
 let subtotal = 0;
 let shippingCost = 0;
 
-// تحديث العداد من LocalStorage
+// تحديث عداد السلة
 function updateCartIcon(){
   const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
   const count = storedCart.reduce((sum,item)=>sum + item.qty,0);
   document.getElementById("cartCount").innerText = count;
 }
 
-// render + ربط الأزرار مباشرة
+// رسم المنتجات داخل السلة
 function render(){
+  cart = JSON.parse(localStorage.getItem("cart")) || [];
   box.innerHTML = "";
   subtotal = 0;
 
@@ -80,31 +82,28 @@ function render(){
       `;
       box.appendChild(p);
 
-      // ربط الأزرار بعد إنشاء DOM
+      // أزرار الزيادة والنقص والحذف
       p.querySelector(".increase").addEventListener("click", ()=>{
         item.qty++;
         localStorage.setItem("cart", JSON.stringify(cart));
-        updateCartIcon();
         render();
       });
       p.querySelector(".decrease").addEventListener("click", ()=>{
         if(item.qty>1) item.qty--;
-        else cart.splice(i,1);
+        else cart = cart.filter((_, idx) => idx !== i);
         localStorage.setItem("cart", JSON.stringify(cart));
-        updateCartIcon();
         render();
       });
       p.querySelector(".remove").addEventListener("click", ()=>{
-        cart.splice(i,1);
+        cart = cart.filter((_, idx) => idx !== i);
         localStorage.setItem("cart", JSON.stringify(cart));
-        updateCartIcon();
         render();
       });
     });
   }
 
-  // حساب الشحن
-  const gov = document.getElementById("governorate").value;
+  // حساب الشحن حسب المحافظة
+  const gov = document.getElementById("governorate").value || "";
   shippingCost = gov==='cairo'?50:gov==='giza'?60:gov==='alex'?70:gov==='other'?80:0;
 
   document.getElementById("shipping").innerText = shippingCost;
@@ -131,13 +130,26 @@ function goCheckout(){
   window.location.href="checkout.html";
 }
 
-// فتح السلة
+// فتح صفحة السلة
 function openCart(){
   window.location.href="cart.html";
 }
 
 // استدعاء render عند فتح الصفحة
 render();
+
+// --- مثال دالة Add to Cart يمكن استخدامها في صفحة المنتجات ---
+function addToCart(product){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const existing = cart.find(p => p.id === product.id);
+  if(existing){
+    existing.qty++;
+  } else {
+    cart.push({...product, qty:1});
+  }
+  localStorage.setItem("cart", JSON.stringify(cart));
+  render();
+}
 </script>
 
 </body>
