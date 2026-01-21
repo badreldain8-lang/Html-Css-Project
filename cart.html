@@ -50,17 +50,36 @@ function render(){
     shippingCost = 0;
   } else {
     cart.forEach((item,i)=>{
-      subtotal += item.price * (item.qty || 1);
-      box.innerHTML += `
-        <p>
-          <img src="${item.img}" alt="${item.name}">
-          ${item.name} - ${item.price} جنيه
-          <button onclick="decreaseQty(${i})">-</button>
-          <input type="text" class="qty" id="qty${i}" value="${item.qty}" readonly>
-          <button onclick="increaseQty(${i})">+</button>
-          <button onclick="removeItem(${i})">❌</button>
-        </p>
+      subtotal += item.price * item.qty;
+
+      // إنشاء عنصر p لكل منتج
+      const p = document.createElement("p");
+      p.innerHTML = `
+        <img src="${item.img}" alt="${item.name}">
+        ${item.name} - ${item.price} جنيه
+        <input type="text" class="qty" value="${item.qty}" readonly>
+        <button class="decrease">-</button>
+        <button class="increase">+</button>
+        <button class="remove">❌</button>
       `;
+      box.appendChild(p);
+
+      // ربط الأزرار مباشرة
+      p.querySelector(".increase").addEventListener("click", ()=>{
+        cart[i].qty++;
+        render();
+      });
+
+      p.querySelector(".decrease").addEventListener("click", ()=>{
+        if(cart[i].qty > 1) cart[i].qty--;
+        else cart.splice(i,1);
+        render();
+      });
+
+      p.querySelector(".remove").addEventListener("click", ()=>{
+        cart.splice(i,1);
+        render();
+      });
     });
   }
 
@@ -74,9 +93,10 @@ function render(){
   document.getElementById("shipping").innerText = shippingCost;
   document.getElementById("total").innerText = subtotal+shippingCost;
 
-  localStorage.setItem("cart", JSON.stringify(cart)); // تحديث دائم
-updateCartIcon(); // تحديث العداد مباشرة بعد أي تعديل
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartIcon();
 }
+
 
 function increaseQty(i){
   cart[i].qty++;
