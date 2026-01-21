@@ -4,53 +4,44 @@
     <meta charset="UTF-8">
     <title>سلة الشراء</title>
     <style>
-        body { font-family: Arial; background:#f5f5f5; margin:0; padding:20px; }
-        .item { display:flex; justify-content:space-between; background:#fff; margin-bottom:10px; padding:10px; border-radius:5px; align-items:center; }
-        .item img { width:50px; height:50px; margin-left:10px; }
-        .controls button { padding:5px 10px; cursor:pointer; }
-        .cart-icon { position:fixed; top:10px; left:10px; background:red; color:white; border-radius:50%; padding:5px 10px; }
+        body { font-family: Arial; background:#f5f5f5; padding:20px; }
+        .item { background:#fff; padding:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+        .controls button { padding:5px; cursor:pointer; width:30px; }
     </style>
 </head>
 <body>
 
 <h1>سلة الشراء</h1>
-
-<select id="governorate" onchange="render()">
-    <option value="">اختر المحافظة</option>
-    <option value="50">القاهرة (50 ج)</option>
-    <option value="60">الجيزة (60 ج)</option>
-    <option value="70">الإسكندرية (70 ج)</option>
-</select>
+<button onclick="window.location.href='index.html'">⬅ العودة للمتجر</button>
+<hr>
 
 <div id="cartList"></div>
-
-<p>الشحن: <span id="shipPrice">0</span> جنيه</p>
-<p>الإجمالي: <span id="totalPrice">0</span> جنيه</p>
-
-<button onclick="location.href='index.html'">العودة للتسوق</button>
-
-<div class="cart-icon">🛒 <span id="cartCount">0</span></div>
+<h3>الإجمالي: <span id="totalPrice">0</span> جنيه</h3>
 
 <script>
-    function render() {
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    function renderCart() {
+        let cart = [];
+        try {
+            cart = JSON.parse(localStorage.getItem("cart")) || [];
+        } catch(e) { 
+            localStorage.removeItem("cart");
+            cart = [];
+        }
+
         const list = document.getElementById("cartList");
-        let subtotal = 0;
-        let totalQty = 0;
-        
+        let total = 0;
         list.innerHTML = "";
-        
+
+        if(cart.length === 0) {
+            list.innerHTML = "<p>السلة فارغة</p>";
+        }
+
         cart.forEach((item, index) => {
-            subtotal += (item.price * item.qty);
-            totalQty += item.qty;
-            
+            total += (item.price * item.qty);
             const div = document.createElement("div");
             div.className = "item";
             div.innerHTML = `
-                <div>
-                    <img src="${item.img}">
-                    <span>${item.name} (${item.price} ج)</span>
-                </div>
+                <div>${item.name} (${item.price} ج)</div>
                 <div class="controls">
                     <button onclick="changeQty(${index}, -1)">-</button>
                     <span>${item.qty}</span>
@@ -60,30 +51,26 @@
             `;
             list.appendChild(div);
         });
-
-        const ship = parseInt(document.getElementById("governorate").value) || 0;
-        document.getElementById("shipPrice").innerText = ship;
-        document.getElementById("totalPrice").innerText = subtotal + ship;
-        document.getElementById("cartCount").innerText = totalQty;
+        document.getElementById("totalPrice").innerText = total;
     }
 
-    function changeQty(index, amt) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        cart[index].qty += amt;
+    function changeQty(index, amount) {
+        let cart = JSON.parse(localStorage.getItem("cart"));
+        cart[index].qty += amount;
         if(cart[index].qty <= 0) cart.splice(index, 1);
         localStorage.setItem("cart", JSON.stringify(cart));
-        render();
+        renderCart();
     }
 
     function remove(index) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let cart = JSON.parse(localStorage.getItem("cart"));
         cart.splice(index, 1);
         localStorage.setItem("cart", JSON.stringify(cart));
-        render();
+        renderCart();
     }
 
-    window.onpageshow = render;
-    render();
+    window.addEventListener('pageshow', renderCart);
+    renderCart();
 </script>
 </body>
 </html>
