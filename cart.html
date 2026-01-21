@@ -104,18 +104,19 @@ function goCheckout(){
   window.location.href="checkout.html";
 }
 
-// تحديث رقم Cart icon
 function updateCartIcon(){
-  let count = cart.length;
-  localStorage.setItem("cartCount", count);
+  document.getElementById("cartCount").innerText = cart.length;
 }
 
 render();
-
-// تحديث الشحن عند اختيار المحافظة
 document.getElementById("governorate").addEventListener("change", updateShipping);
 </script>
 
+<div class="cart-icon" style="display:none;">
+  <span id="cartCount"></span>
+</div>
+
 </body>
 </html>
+
 
