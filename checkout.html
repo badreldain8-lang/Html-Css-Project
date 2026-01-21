@@ -1,33 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Checkout</title>
-<style>body{padding:40px; font-family:Arial; background:#f4f7f6;} .form-box{max-width:400px; margin:auto; background:white; padding:30px; border-radius:15px;} input{width:100%; padding:12px; margin:10px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:8px;}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Shipping Details</title>
+    <style>
+        :root { --primary: #000; --accent: #28a745; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+        
+        .checkout-container { max-width: 1000px; margin: 40px auto; display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; }
+        
+        /* Left Side: Form */
+        .card { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        h2 { margin-top: 0; font-size: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; color: #666; }
+        .input-group input { 
+            width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; 
+            box-sizing: border-box; font-size: 1rem; transition: all 0.3s; 
+        }
+        .input-group input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0,0,0,0.1); }
+        .input-group input[readonly] { background: #f9f9f9; cursor: not-allowed; color: #888; }
+
+        /* Right Side: Order Summary */
+        .summary-card { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 20px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
+        .total-row { border-top: 2px solid #eee; margin-top: 15px; padding-top: 15px; font-weight: bold; font-size: 1.2rem; display: flex; justify-content: space-between; }
+        
+        .item-preview { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .item-preview img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; }
+        .item-preview span { font-size: 0.85rem; }
+
+        .confirm-btn { 
+            width: 100%; padding: 16px; background: var(--primary); color: white; border: none; 
+            border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px;
+        }
+        .confirm-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        @media (max-width: 850px) {
+            .checkout-container { grid-template-columns: 1fr; }
+            .summary-card { position: static; }
+        }
+    </style>
 </head>
 <body>
-<div class="form-box">
-    <h2>Customer Details</h2>
-    <label>Full Name</label><input type="text" id="customerName" placeholder="Enter your name">
-    <label>Address</label><input type="text" id="customerAddress" placeholder="Street, Building, Apt">
-    <label>Phone Number</label><input type="text" id="customerPhone" placeholder="01xxxxxxxxx">
-    <label>City</label><input type="text" id="customerGovernorate" readonly>
-    <button onclick="confirmOrder()" style="width:100%; padding:15px; background:black; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Confirm Order</button>
+
+<div class="checkout-container">
+    <div class="card">
+        <h2>🚚 Shipping Information</h2>
+        <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" id="customerName" placeholder="e.g. John Doe">
+        </div>
+        <div class="input-group">
+            <label>Delivery Address</label>
+            <input type="text" id="customerAddress" placeholder="Building No, Street Name, Apartment">
+        </div>
+        <div class="input-group">
+            <label>Phone Number</label>
+            <input type="tel" id="customerPhone" placeholder="01xxxxxxxxx">
+        </div>
+        <div class="input-group">
+            <label>City (Selected in Cart)</label>
+            <input type="text" id="customerGovernorate" readonly>
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <h2>Order Summary</h2>
+        <div id="orderItems">
+            </div>
+        <div class="summary-item" style="margin-top:20px;">
+            <span>Subtotal</span>
+            <span id="subtotalVal">0 EGP</span>
+        </div>
+        <div class="summary-item">
+            <span>Shipping Fee</span>
+            <span id="shippingVal">0 EGP</span>
+        </div>
+        <div class="total-row">
+            <span>Total</span>
+            <span id="finalTotalVal">0 EGP</span>
+        </div>
+        <button class="confirm-btn" onclick="processOrder()">Complete Order →</button>
+        <p style="font-size: 0.75rem; color: #888; text-align: center; margin-top: 15px;">
+            By clicking complete, you agree to our terms of service.
+        </p>
+    </div>
 </div>
 
 <script>
-document.getElementById("customerGovernorate").value = localStorage.getItem("selectedGovernorate").toUpperCase();
+    // Load data from LocalStorage
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const selectedGov = localStorage.getItem("selectedGovernorate") || "Not Selected";
+    const totalWithShipping = localStorage.getItem("tempTotal") || 0;
 
-function confirmOrder(){
-    const name = document.getElementById("customerName").value;
-    const address = document.getElementById("customerAddress").value;
-    const phone = document.getElementById("customerPhone").value;
-    if(!name || !address || !phone) return alert("Please fill all fields");
+    function initCheckout() {
+        if(cart.length === 0) {
+            alert("Your cart is empty!");
+            window.location.href = "index.html";
+            return;
+        }
 
-    const orderNumber = Math.floor(Math.random()*1000000);
-    localStorage.removeItem("cart");
-    window.location.href=`payment.html?order=${orderNumber}&total=${localStorage.getItem("tempTotal")}`;
-}
+        document.getElementById("customerGovernorate").value = selectedGov.toUpperCase();
+        
+        const itemsContainer = document.getElementById("orderItems");
+        let subtotal = 0;
+
+        cart.forEach(item => {
+            subtotal += (item.price * item.qty);
+            const div = document.createElement("div");
+            div.className = "item-preview";
+            div.innerHTML = `
+                <img src="${item.img}" alt="item">
+                <div>
+                    <strong>${item.name}</strong><br>
+                    <span>Size: ${item.size} | Qty: ${item.qty}</span>
+                </div>
+                <div style="margin-left: auto;">${item.price * item.qty} EGP</div>
+            `;
+            itemsContainer.appendChild(div);
+        });
+
+        document.getElementById("subtotalVal").innerText = subtotal + " EGP";
+        document.getElementById("shippingVal").innerText = (totalWithShipping - subtotal) + " EGP";
+        document.getElementById("finalTotalVal").innerText = totalWithShipping + " EGP";
+    }
+
+    function processOrder() {
+        const name = document.getElementById("customerName").value;
+        const address = document.getElementById("customerAddress").value;
+        const phone = document.getElementById("customerPhone").value;
+
+        if(!name || !address || !phone) {
+            alert("Please provide all shipping details.");
+            return;
+        }
+
+        // Generate Order ID
+        const orderNumber = "ORD-" + Math.floor(Math.random() * 900000 + 100000);
+        
+        // Finalize order in storage (optional but good for history)
+        const orderData = {
+            orderID: orderNumber,
+            customer: { name, address, phone, city: selectedGov },
+            items: cart,
+            total: totalWithShipping
+        };
+
+        let orders = JSON.parse(localStorage.getItem("all_orders")) || [];
+        orders.push(orderData);
+        localStorage.setItem("all_orders", JSON.stringify(orders));
+
+        // Move to payment
+        window.location.href = `payment.html?order=${orderNumber}&total=${totalWithShipping}`;
+    }
+
+    window.onload = initCheckout;
 </script>
+
 </body>
 </html>
