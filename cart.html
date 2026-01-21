@@ -46,16 +46,16 @@ function updateCartIcon(){
   document.getElementById("cartCount").innerText = count;
 }
 
-function render(){
+function render() {
   const gov = document.getElementById("governorate").value;
   box.innerHTML = "";
   subtotal = 0;
 
-  if(cart.length === 0){
+  if(cart.length === 0) {
     box.innerHTML = "السلة فاضية";
     shippingCost = 0;
   } else {
-    cart.forEach((item,i)=>{
+    cart.forEach((item,i) => {
       subtotal += item.price * item.qty;
 
       const p = document.createElement("p");
@@ -69,21 +69,20 @@ function render(){
       `;
       box.appendChild(p);
 
-      // ربط الأزرار مباشرة بالمنتج الحالي
-      p.querySelector(".increase").addEventListener("click", ()=>{
+      p.querySelector(".increase").addEventListener("click", ()=> {
         cart[i].qty++;
         localStorage.setItem("cart", JSON.stringify(cart));
         render();
       });
 
-      p.querySelector(".decrease").addEventListener("click", ()=>{
+      p.querySelector(".decrease").addEventListener("click", ()=> {
         if(cart[i].qty > 1) cart[i].qty--;
         else cart.splice(i,1);
         localStorage.setItem("cart", JSON.stringify(cart));
         render();
       });
 
-      p.querySelector(".remove").addEventListener("click", ()=>{
+      p.querySelector(".remove").addEventListener("click", ()=> {
         cart.splice(i,1);
         localStorage.setItem("cart", JSON.stringify(cart));
         render();
@@ -99,10 +98,11 @@ function render(){
   else shippingCost=0;
 
   document.getElementById("shipping").innerText = shippingCost;
-  document.getElementById("total").innerText = subtotal + shippingCost;
+  document.getElementById("total").innerText = subtotal+shippingCost;
 
-  updateCartIcon();
-  localStorage.setItem("cart", JSON.stringify(cart));
+  // تحديث العداد مباشرة
+  const count = cart.reduce((sum,item)=>sum+(item.qty||0),0);
+  document.getElementById("cartCount").innerText = count;
 }
 
 // عند تغيير المحافظة يحدث الشحن + المجموع
