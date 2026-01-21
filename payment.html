@@ -2,59 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Payment | Boutique</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #fdfdfd; padding: 40px 20px; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .pay-card { background: #fff; max-width: 420px; width: 100%; padding: 40px; border: 1px solid #eee; border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.02); }
-        .price-hero { font-family: 'Playfair Display', serif; font-size: 2.8rem; text-align: center; margin-bottom: 30px; }
-        .option { display: flex; align-items: center; background: #f9f9f9; padding: 15px; margin-bottom: 10px; border: 2px solid transparent; cursor: pointer; transition: 0.3s; }
-        .option.active { border-color: #000; background: #fff; }
-        .option input { margin-right: 15px; }
-        .method { position: relative; background: #000; color: #fff; padding: 25px; margin-top: 30px; text-align: center; border-radius: 4px; }
-        .copy-btn { position: absolute; top: 10px; right: 10px; background: #c5a059; color: #fff; border: none; padding: 5px 10px; font-size: 0.6rem; cursor: pointer; text-transform: uppercase; }
-        .done-btn { width: 100%; padding: 18px; background: #c5a059; color: #fff; border: none; margin-top: 25px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+        body { font-family: sans-serif; background: #f5f5f7; padding: 20px; color: #1d1d1f; }
+        .pay-card { max-width: 400px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h2 { text-align: center; font-size: 1.5rem; }
+        .total-box { background: #000; color: #fff; text-align: center; padding: 20px; border-radius: 12px; margin: 20px 0; }
+        .total-box span { font-size: 2rem; font-weight: 800; display: block; }
+        
+        .selector { margin-bottom: 25px; }
+        .pay-option { display: block; background: #f5f5f7; padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; font-weight: 600; }
+        input[type="radio"]:checked + span { color: #0071e3; }
+        .pay-option:has(input:checked) { border-color: #0071e3; background: #fff; }
+
+        .copy-box { border: 1px dashed #d2d2d7; padding: 15px; border-radius: 12px; position: relative; }
+        .copy-btn { position: absolute; right: 10px; top: 10px; background: #0071e3; color: #fff; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .confirm-btn { width: 100%; padding: 16px; background: #28a745; color: white; border: none; border-radius: 12px; font-weight: bold; margin-top: 20px; font-size: 1rem; cursor: pointer; }
     </style>
 </head>
 <body>
-<div class="pay-card">
-    <div class="price-hero" id="totalDisplay">0</div>
-    <div style="text-align:center; color:#888; margin-bottom:20px; font-size:0.8rem;">Select Payment Amount</div>
-    
-    <label class="option active" onclick="sel(this)">
-        <input type="radio" name="pay" value="Full Amount" checked> Full Payment (<span id="fAmt"></span>)
-    </label>
-    <label class="option" onclick="sel(this)">
-        <input type="radio" name="pay" value="50% Deposit"> 50% Deposit (<span id="hAmt"></span>)
-    </label>
 
-    <div class="method">
-        <button class="copy-btn" onclick="copy()">Copy</button>
-        <small style="opacity:0.6; display:block; margin-bottom:5px;">TRANSFER VIA VODAFONE CASH</small>
-        <span style="font-size:1.4rem; letter-spacing:2px;">01015653338</span>
+<div class="pay-card">
+    <h2>Secure Payment</h2>
+    <div class="total-box"><small>Total Amount</small><span id="totalDisplay">0</span></div>
+    
+    <div class="selector">
+        <p style="font-weight:600; margin-bottom:10px">Select Transfer Amount:</p>
+        <label class="pay-option"><input type="radio" name="amt" value="Full Amount" checked> Full Payment (<span id="fAmt"></span> EGP)</label>
+        <label class="pay-option"><input type="radio" name="amt" value="50% Deposit"> 50% Deposit (<span id="hAmt"></span> EGP)</label>
     </div>
 
-    <p style="font-size:0.75rem; color:#d32f2f; text-align:center; margin-top:20px;">⚠️ Please take a screenshot of your transfer proof.</p>
-    <button class="done-btn" onclick="go()">I have transferred</button>
+    <div class="copy-box">
+        <small style="color:#86868b">Vodafone Cash / InstaPay</small>
+        <div style="font-size:1.2rem; font-weight:bold" id="num">01015653338</div>
+        <button class="copy-btn" onclick="copy()">Copy</button>
+    </div>
+
+    <p style="text-align:center; font-size:0.8rem; color:red; margin-top:15px">⚠️ IMPORTANT: Send screenshot after transfer.</p>
+    <button class="confirm-btn" onclick="next()">I have Sent the Money ✅</button>
 </div>
 
 <script>
     const p = new URLSearchParams(window.location.search);
-    const tot = parseInt(p.get('total'));
+    const tot = parseInt(p.get('total')) || 0;
     document.getElementById("totalDisplay").innerText = tot + " EGP";
     document.getElementById("fAmt").innerText = tot;
     document.getElementById("hAmt").innerText = tot/2;
 
-    function sel(el) {
-        document.querySelectorAll('.option').forEach(o => o.classList.remove('active'));
-        el.classList.add('active');
-    }
-    function copy() { 
-        navigator.clipboard.writeText("01015653338"); 
-        document.querySelector('.copy-btn').innerText = "Copied";
-    }
-    function go() {
-        localStorage.setItem("paymentChoice", document.querySelector('input[name="pay"]:checked').value);
+    function copy() { navigator.clipboard.writeText("01015653338"); alert("Number Copied"); }
+    function next() {
+        const choice = document.querySelector('input[name="amt"]:checked').value;
+        localStorage.setItem("paymentChoice", choice);
         window.location.href = `confirmation.html?order=${p.get('order')}`;
     }
 </script>
