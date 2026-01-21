@@ -2,71 +2,148 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bag | Modern Store</title>
     <style>
-        body { font-family: sans-serif; background: #f5f5f7; padding: 20px; color: #1d1d1f; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .item { display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid #eee; }
-        .item img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; }
-        .qty { display: flex; align-items: center; background: #f5f5f7; border-radius: 8px; padding: 4px; }
-        .qty button { border: none; background: #fff; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .total-box { margin-top: 20px; padding: 20px; background: #fbfbfd; border-radius: 15px; }
-        .checkout-btn { width: 100%; padding: 18px; background: #0071e3; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        :root { --accent: #0071e3; --text: #1d1d1f; --grey: #86868b; }
+        body { font-family: -apple-system, sans-serif; background: #f5f5f7; padding: 20px; color: var(--text); }
+        .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        .item { display: flex; align-items: center; gap: 15px; padding: 20px 0; border-bottom: 1px solid #eee; }
+        .item img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
+        
+        .item-info { flex-grow: 1; }
+        .item-name { font-weight: 700; font-size: 1rem; margin: 0; }
+        .item-details { color: var(--grey); font-size: 0.85rem; margin: 4px 0; }
+        /* Individual price styling */
+        .unit-price { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
+        
+        .qty-controls { display: flex; align-items: center; background: #f5f5f7; border-radius: 10px; padding: 5px; margin-top: 10px; width: fit-content; }
+        .qty-controls button { border: none; background: #fff; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .qty-val { padding: 0 12px; font-weight: 600; font-size: 0.9rem; }
+        
+        .item-total { text-align: right; min-width: 90px; }
+        .subtotal-val { font-weight: 800; font-size: 1rem; }
+
+        .summary { margin-top: 30px; padding: 20px; background: #fbfbfd; border-radius: 18px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; }
+        .grand-total { border-top: 1px solid #ddd; margin-top: 15px; padding-top: 15px; font-size: 1.3rem; font-weight: 800; }
+        
+        .checkout-btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; transition: 0.3s; }
+        .checkout-btn:hover { background: #0077ed; transform: translateY(-2px); }
+        
+        .remove-btn { border: none; background: none; color: #ff3b30; cursor: pointer; font-size: 0.8rem; margin-top: 10px; padding: 0; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2>Shopping Bag</h2>
-    <div id="list"></div>
-    <div class="total-box">
-        <select id="city" onchange="render()" style="width:100%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid #ddd;">
-            <option value="0">Select City</option>
+    <h2>Your Bag</h2>
+    <div id="cartList"></div>
+
+    <div class="summary">
+        <label style="font-size: 0.8rem; font-weight: 600; color: var(--grey);">DELIVERY DESTINATION</label>
+        <select id="citySelect" onchange="renderCart()" style="width:100%; padding:12px; margin: 8px 0 20px; border-radius:10px; border:1px solid #ddd; outline: none;">
+            <option value="0">Select your city...</option>
             <option value="50">Cairo (50 EGP)</option>
             <option value="65">Alexandria (65 EGP)</option>
+            <option value="80">Giza (80 EGP)</option>
         </select>
-        <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:bold;">
-            <span>Total</span> <span id="grand">0 EGP</span>
+
+        <div class="summary-row">
+            <span>Items Subtotal</span>
+            <span id="itemsSubtotal">0 EGP</span>
         </div>
-        <button class="checkout-btn" onclick="next()">Continue to Shipping</button>
+        <div class="summary-row">
+            <span>Shipping Fee</span>
+            <span id="shippingFee">0 EGP</span>
+        </div>
+        <div class="summary-row grand-total">
+            <span>Total</span>
+            <span id="grandTotal">0 EGP</span>
+        </div>
+
+        <button class="checkout-btn" onclick="goToCheckout()">Proceed to Shipping</button>
     </div>
 </div>
+
 <script>
-    function render() {
+    function renderCart() {
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const box = document.getElementById("list");
-        let sub = 0; box.innerHTML = "";
-        cart.forEach((item, i) => {
-            sub += item.price * item.qty;
-            box.innerHTML += `
+        const container = document.getElementById("cartList");
+        let subtotal = 0;
+
+        if (cart.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:#888; padding: 20px;">Your bag is empty.</p>`;
+            updateTotals(0);
+            return;
+        }
+
+        container.innerHTML = cart.map((item, index) => {
+            const itemTotal = item.price * item.qty;
+            subtotal += itemTotal;
+            return `
                 <div class="item">
-                    <img src="${item.img}">
-                    <div style="flex-grow:1"><b>${item.name}</b><br><small>Size: ${item.size}</small></div>
-                    <div class="qty">
-                        <button onclick="upd(${i},-1)">-</button>
-                        <span style="padding:0 10px">${item.qty}</span>
-                        <button onclick="upd(${i},1)">+</button>
+                    <img src="${item.img}" alt="${item.name}">
+                    <div class="item-info">
+                        <p class="item-name">${item.name}</p>
+                        <p class="item-details">Size: ${item.size}</p>
+                        <p class="unit-price">${item.price} EGP <small style="color:#aaa; font-weight:400;">per item</small></p>
+                        <div class="qty-controls">
+                            <button onclick="changeQty(${index}, -1)">-</button>
+                            <span class="qty-val">${item.qty}</span>
+                            <button onclick="changeQty(${index}, 1)">+</button>
+                        </div>
                     </div>
-                    <button onclick="upd(${i},-99)" style="border:none; background:none; cursor:pointer">🗑️</button>
-                </div>`;
-        });
-        const ship = parseInt(document.getElementById("city").value);
-        document.getElementById("grand").innerText = (sub + ship) + " EGP";
-        localStorage.setItem("tempTotal", sub + ship);
+                    <div class="item-total">
+                        <div class="subtotal-val">${itemTotal} EGP</div>
+                        <button class="remove-btn" onclick="changeQty(${index}, -999)">Remove</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        updateTotals(subtotal);
     }
-    function upd(i, d) {
-        let cart = JSON.parse(localStorage.getItem("cart"));
-        cart[i].qty += d;
-        if(cart[i].qty < 1) cart.splice(i,1);
+
+    function updateTotals(subtotal) {
+        const shipping = parseInt(document.getElementById("citySelect").value) || 0;
+        const grandTotal = subtotal + shipping;
+
+        document.getElementById("itemsSubtotal").innerText = subtotal + " EGP";
+        document.getElementById("shippingFee").innerText = shipping + " EGP";
+        document.getElementById("grandTotal").innerText = grandTotal + " EGP";
+        
+        // Save the final total for the payment page
+        localStorage.setItem("tempTotal", grandTotal);
+    }
+
+    function changeQty(index, delta) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart[index].qty += delta;
+
+        if (cart[index].qty < 1) {
+            cart.splice(index, 1);
+        }
+
         localStorage.setItem("cart", JSON.stringify(cart));
-        render();
+        renderCart();
     }
-    function next() {
-        const c = document.getElementById("city");
-        if(c.value == "0") return alert("Select City");
-        localStorage.setItem("selectedGovernorate", c.options[c.selectedIndex].text);
+
+    function goToCheckout() {
+        const city = document.getElementById("citySelect");
+        if (city.value === "0") {
+            alert("Please select a delivery city first.");
+            return;
+        }
+        localStorage.setItem("selectedGovernorate", city.options[city.selectedIndex].text);
         window.location.href = "checkout.html";
     }
-    render();
+
+    window.onload = renderCart;
 </script>
+
 </body>
 </html>
