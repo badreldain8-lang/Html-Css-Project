@@ -2,73 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Your Bag | Boutique</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Bag | Modern Store</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #fff; margin: 0; padding: 40px 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; text-align: center; }
-        .item { display: grid; grid-template-columns: 100px 1fr auto auto auto; align-items: center; gap: 20px; padding: 25px 0; border-bottom: 1px solid #eee; }
-        .item img { width: 100px; height: 100px; object-fit: cover; }
-        .qty-ctrl { display: flex; align-items: center; border: 1px solid #eee; padding: 5px; border-radius: 4px; }
-        .qty-btn { background: none; border: none; padding: 5px 10px; cursor: pointer; font-size: 1.2rem; }
-        .summary { background: #fcfcfc; padding: 30px; margin-top: 40px; border: 1px solid #eee; }
-        .row { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .total { font-family: 'Playfair Display', serif; font-size: 1.8rem; border-top: 2px solid #000; padding-top: 15px; margin-top: 15px; }
-        .checkout-btn { width: 100%; padding: 20px; background: #000; color: #fff; border: none; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
+        body { font-family: sans-serif; background: #f5f5f7; padding: 20px; color: #1d1d1f; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .item { display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid #eee; }
+        .item img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; }
+        .qty { display: flex; align-items: center; background: #f5f5f7; border-radius: 8px; padding: 4px; }
+        .qty button { border: none; background: #fff; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .total-box { margin-top: 20px; padding: 20px; background: #fbfbfd; border-radius: 15px; }
+        .checkout-btn { width: 100%; padding: 18px; background: #0071e3; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Shopping Bag</h1>
+    <h2>Shopping Bag</h2>
     <div id="list"></div>
-    <div class="summary">
-        <select id="city" onchange="render()" style="width:100%; padding:12px; margin-bottom:20px;">
-            <option value="0">Deliver to...</option>
+    <div class="total-box">
+        <select id="city" onchange="render()" style="width:100%; padding:10px; margin-bottom:15px; border-radius:8px; border:1px solid #ddd;">
+            <option value="0">Select City</option>
             <option value="50">Cairo (50 EGP)</option>
-            <option value="70">Alexandria (70 EGP)</option>
+            <option value="65">Alexandria (65 EGP)</option>
         </select>
-        <div class="row"><span>Shipping</span> <span id="ship">0 EGP</span></div>
-        <div class="row total"><span>Total</span> <span id="grand">0 EGP</span></div>
-        <button class="checkout-btn" onclick="go()">Checkout</button>
+        <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:bold;">
+            <span>Total</span> <span id="grand">0 EGP</span>
+        </div>
+        <button class="checkout-btn" onclick="next()">Continue to Shipping</button>
     </div>
 </div>
 <script>
     function render() {
         const cart = JSON.parse(localStorage.getItem("cart")) || [];
         const box = document.getElementById("list");
-        let sub = 0;
-        box.innerHTML = "";
+        let sub = 0; box.innerHTML = "";
         cart.forEach((item, i) => {
             sub += item.price * item.qty;
-            box.innerHTML += `<div class="item">
-                <img src="${item.img}">
-                <div><strong>${item.name}</strong><br><small>Size: ${item.size}</small></div>
-                <div class="qty-ctrl">
-                    <button class="qty-btn" onclick="upd(${i},-1)">-</button>
-                    <span>${item.qty}</span>
-                    <button class="qty-btn" onclick="upd(${i},1)">+</button>
-                </div>
-                <div style="font-weight:600">${item.price * item.qty} EGP</div>
-                <button onclick="upd(${i},-99)" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">✕</button>
-            </div>`;
+            box.innerHTML += `
+                <div class="item">
+                    <img src="${item.img}">
+                    <div style="flex-grow:1"><b>${item.name}</b><br><small>Size: ${item.size}</small></div>
+                    <div class="qty">
+                        <button onclick="upd(${i},-1)">-</button>
+                        <span style="padding:0 10px">${item.qty}</span>
+                        <button onclick="upd(${i},1)">+</button>
+                    </div>
+                    <button onclick="upd(${i},-99)" style="border:none; background:none; cursor:pointer">🗑️</button>
+                </div>`;
         });
         const ship = parseInt(document.getElementById("city").value);
-        document.getElementById("ship").innerText = ship + " EGP";
         document.getElementById("grand").innerText = (sub + ship) + " EGP";
         localStorage.setItem("tempTotal", sub + ship);
     }
     function upd(i, d) {
         let cart = JSON.parse(localStorage.getItem("cart"));
         cart[i].qty += d;
-        if(cart[i].qty < 1) cart.splice(i, 1);
+        if(cart[i].qty < 1) cart.splice(i,1);
         localStorage.setItem("cart", JSON.stringify(cart));
         render();
     }
-    function go() {
-        const city = document.getElementById("city");
-        if(city.value == "0") return alert("Please select city");
-        localStorage.setItem("selectedGovernorate", city.options[city.selectedIndex].text);
+    function next() {
+        const c = document.getElementById("city");
+        if(c.value == "0") return alert("Select City");
+        localStorage.setItem("selectedGovernorate", c.options[c.selectedIndex].text);
         window.location.href = "checkout.html";
     }
     render();
