@@ -54,7 +54,7 @@ function updateCartIcon(){
   document.getElementById("cartCount").innerText = count;
 }
 
-function render() {
+function render(){
   box.innerHTML = "";
   subtotal = 0;
 
@@ -62,9 +62,8 @@ function render() {
     box.innerHTML = "<p>السلة فاضية</p>";
     shippingCost = 0;
   } else {
-    cart.forEach((item, i) => {
+    cart.forEach((item, i)=>{
       subtotal += item.price * item.qty;
-
       const p = document.createElement("div");
       p.classList.add("item");
       p.innerHTML = `
@@ -81,24 +80,19 @@ function render() {
       `;
       box.appendChild(p);
 
-      const decreaseBtn = p.querySelector(".decrease");
-      const increaseBtn = p.querySelector(".increase");
-      const removeBtn = p.querySelector(".remove");
-
-      decreaseBtn.addEventListener("click", ()=>{
-        if(item.qty > 1) item.qty--;
-        else cart.splice(i,1);
-        localStorage.setItem("cart", JSON.stringify(cart));
-        render();
-      });
-
-      increaseBtn.addEventListener("click", ()=>{
+      // ربط الأحداث هنا مباشرة
+      p.querySelector(".increase").addEventListener("click", ()=>{
         item.qty++;
         localStorage.setItem("cart", JSON.stringify(cart));
         render();
       });
-
-      removeBtn.addEventListener("click", ()=>{
+      p.querySelector(".decrease").addEventListener("click", ()=>{
+        if(item.qty>1) item.qty--;
+        else cart.splice(i,1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        render();
+      });
+      p.querySelector(".remove").addEventListener("click", ()=>{
         cart.splice(i,1);
         localStorage.setItem("cart", JSON.stringify(cart));
         render();
@@ -106,27 +100,19 @@ function render() {
     });
   }
 
-  function increaseQty(i){
-  cart[i].qty++;
-  localStorage.setItem("cart", JSON.stringify(cart));
-  updateCartIcon(); // تحديث العداد فورًا
-  render();
+  // حساب الشحن
+  const gov = document.getElementById("governorate").value;
+  shippingCost = gov==='cairo'?50:gov==='giza'?60:gov==='alex'?70:gov==='other'?80:0;
+
+  document.getElementById("shipping").innerText = shippingCost;
+  document.getElementById("total").innerText = subtotal+shippingCost;
+
+  // تحديث العداد من LocalStorage مباشرة
+  const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+  const count = storedCart.reduce((sum, item)=> sum + item.qty,0);
+  document.getElementById("cartCount").innerText = count;
 }
 
-function decreaseQty(i){
-  if(cart[i].qty > 1) cart[i].qty--;
-  else cart = cart.filter((_, index) => index !== i);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  updateCartIcon(); // تحديث العداد فورًا
-  render();
-}
-
-function removeItem(i){
-  cart = cart.filter((_, index) => index !== i);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  updateCartIcon(); // تحديث العداد فورًا
-  render();
-}
 
   // حساب الشحن بعد اختيار المحافظة
   const gov = document.getElementById("governorate").value;
