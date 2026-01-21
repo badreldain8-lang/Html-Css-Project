@@ -2,37 +2,29 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Payment</title>
-<style>
-button { display:block; margin:20px auto; padding:10px 20px; font-size:16px; cursor:pointer; }
-</style>
+<title>الدفع</title>
+<style>body{direction:rtl; text-align:center; padding:20px; font-family:Arial;}</style>
 </head>
 <body>
+<h2>رقم طلبك: <span id="orderNum"></span></h2>
+<h3 style="color:red;">المطلوب تحويله: <span id="totalVal"></span> جنيه</h3>
 
-<h2>رقم طلبك</h2>
-<p>رقم الطلب: <strong id="orderNumber"></strong></p>
-
-<p>حول نصف قيمة الطلب على:</p>
-<div style="display:flex; gap:20px; margin-top:10px;">
-  <div style="border:1px solid #ccc; padding:10px; text-align:center;">
-    📱 فودافون كاش<br>01015653338
-  </div>
-  <div style="border:1px solid #ccc; padding:10px; text-align:center;">
-    🏦 InstaPay<br>01015653338
-  </div>
+<p>حول نصف قيمة الطلب (أو المبلغ كاملاً) على:</p>
+<div style="display:flex; justify-content:center; gap:20px;">
+  <div style="border:2px solid #ddd; padding:15px; border-radius:10px;">📱 فودافون كاش<br><b>01015653338</b></div>
+  <div style="border:2px solid #ddd; padding:15px; border-radius:10px;">🏦 InstaPay<br><b>01015653338</b></div>
 </div>
 
-<button id="transferBtn">تم التحويل</button>
+<button onclick="finish()" style="margin-top:30px; padding:15px 40px; background:green; color:white; border:none; border-radius:5px; cursor:pointer;">تم التحويل ✅</button>
 
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const orderNumber = urlParams.get('order');
-document.getElementById("orderNumber").innerText = orderNumber;
+const params = new URLSearchParams(window.location.search);
+document.getElementById("orderNum").innerText = params.get('order');
+document.getElementById("totalVal").innerText = params.get('total');
 
-document.getElementById("transferBtn").onclick = function(){
-  window.location.href="confirmation.html";
-};
+function finish(){
+    window.location.href = `confirmation.html?order=${params.get('order')}`;
+}
 </script>
-
 </body>
 </html>
