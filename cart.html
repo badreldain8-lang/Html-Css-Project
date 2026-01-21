@@ -27,6 +27,11 @@ button { padding:5px 10px; cursor:pointer; margin-left:5px; }
 <p>سعر الشحن: <span id="shipping">0</span> جنيه</p>
 <p>الإجمالي: <span id="total">0</span> جنيه</p>
 
+  <!-- أيقونة Cart مع العداد -->
+<div class="cart-icon" onclick="openCart()">
+  🛒 <span id="cartCount">0</span>
+</div>
+  
 <button onclick="goCheckout()">إكمال الطلب</button>
 
 <script>
@@ -115,10 +120,6 @@ render();
 document.getElementById("governorate").addEventListener("change", render);
 </script>
 
-
-<div class="cart-icon" style="display:none;">
-  <span id="cartCount"></span>
-</div>
 
 </body>
 </html>
