@@ -1,41 +1,32 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>بيانات الشحن</title>
-<style>body{direction:rtl; padding:20px; font-family:Arial;} input{width:100%; padding:10px; margin:10px 0; border:1px solid #ccc;}</style>
+<title>Checkout</title>
+<style>body{padding:40px; font-family:Arial; background:#f4f7f6;} .form-box{max-width:400px; margin:auto; background:white; padding:30px; border-radius:15px;} input{width:100%; padding:12px; margin:10px 0; box-sizing:border-box; border:1px solid #ddd; border-radius:8px;}</style>
 </head>
 <body>
-<h2>إكمال بيانات العميل</h2>
-<form id="checkoutForm">
-  <label>الاسم:</label><input type="text" id="customerName">
-  <label>العنوان:</label><input type="text" id="customerAddress">
-  <label>رقم الهاتف:</label><input type="text" id="customerPhone">
-  <label>المحافظة:</label><input type="text" id="customerGovernorate" readonly>
-  <button type="button" onclick="confirmOrder()" style="width:100%; padding:15px; background:blue; color:white; border:none; cursor:pointer;">تأكيد وحفظ الطلب</button>
-</form>
+<div class="form-box">
+    <h2>Customer Details</h2>
+    <label>Full Name</label><input type="text" id="customerName" placeholder="Enter your name">
+    <label>Address</label><input type="text" id="customerAddress" placeholder="Street, Building, Apt">
+    <label>Phone Number</label><input type="text" id="customerPhone" placeholder="01xxxxxxxxx">
+    <label>City</label><input type="text" id="customerGovernorate" readonly>
+    <button onclick="confirmOrder()" style="width:100%; padding:15px; background:black; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Confirm Order</button>
+</div>
 
 <script>
-document.getElementById("customerGovernorate").value = localStorage.getItem("selectedGovernorate");
+document.getElementById("customerGovernorate").value = localStorage.getItem("selectedGovernorate").toUpperCase();
 
 function confirmOrder(){
-  const name = document.getElementById("customerName").value;
-  const address = document.getElementById("customerAddress").value;
-  const phone = document.getElementById("customerPhone").value;
-  const cart = JSON.parse(localStorage.getItem("cart"));
+    const name = document.getElementById("customerName").value;
+    const address = document.getElementById("customerAddress").value;
+    const phone = document.getElementById("customerPhone").value;
+    if(!name || !address || !phone) return alert("Please fill all fields");
 
-  if(!name || !address || !phone) return alert("اكمل كل البيانات");
-
-  const orderNumber = Math.floor(Math.random()*1000000);
-  const orderData = { orderNumber, cart, customer: {name, address, phone}, total: localStorage.getItem("tempTotal") };
-
-  let orders = JSON.parse(localStorage.getItem("orders")) || [];
-  orders.push(orderData);
-  localStorage.setItem("orders", JSON.stringify(orders));
-  
-  // Clear cart now
-  localStorage.removeItem("cart");
-  window.location.href=`payment.html?order=${orderNumber}&total=${orderData.total}`;
+    const orderNumber = Math.floor(Math.random()*1000000);
+    localStorage.removeItem("cart");
+    window.location.href=`payment.html?order=${orderNumber}&total=${localStorage.getItem("tempTotal")}`;
 }
 </script>
 </body>
