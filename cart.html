@@ -64,20 +64,24 @@ function render(){
 
 function removeItem(i){
   cart.splice(i,1);
+  localStorage.setItem("cart", JSON.stringify(cart)); // تحديث LocalStorage فوراً
   render();
 }
 
+
 function increaseQty(i){
   cart[i].qty++;
+  localStorage.setItem("cart", JSON.stringify(cart));
   render();
 }
 
 function decreaseQty(i){
   if(cart[i].qty>1) cart[i].qty--;
   else cart.splice(i,1);
+  localStorage.setItem("cart", JSON.stringify(cart));
   render();
 }
-
+  
 function updateShipping(){
   const gov = document.getElementById("governorate").value;
   if(gov==='cairo') shippingCost=50;
