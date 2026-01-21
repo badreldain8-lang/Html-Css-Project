@@ -38,13 +38,22 @@ button { padding:8px 12px; cursor:pointer; margin-top:5px; }
 </div>
 
 <script>
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
 function addToCart(name, price, img){
-  cart.push({name, price, img, qty:1});
+  // اقرأ الكارت الحالي من LocalStorage قبل الإضافة
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  
+  // تحقق إذا المنتج موجود بالفعل
+  const index = cart.findIndex(item => item.name === name);
+  if(index !== -1){
+    cart[index].qty++; // لو موجود زد الكمية
+  } else {
+    cart.push({name, price, img, qty:1}); // لو جديد ضيفه
+  }
+
   localStorage.setItem("cart", JSON.stringify(cart));
-  updateCount();
+  updateCount(); // تحديث العداد مباشرة
 }
+
 
 function updateCount(){
   document.getElementById("cartCount").innerText = cart.length;
