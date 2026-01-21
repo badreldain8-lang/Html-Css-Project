@@ -1,27 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Payment</title>
-<style>body{text-align:center; padding:50px; font-family:Arial; background:#f4f7f6;} .card{background:white; padding:40px; display:inline-block; border-radius:20px; box-shadow:0 5px 15px rgba(0,0,0,0.05);}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment | Luxury Store</title>
+    <style>
+        :root { --primary: #000; --gold: #c5a059; --bg: #f4f4f4; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        
+        .payment-card { 
+            background: #fff; max-width: 450px; width: 100%; border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header { background: var(--primary); color: white; padding: 30px; text-align: center; }
+        .header h2 { margin: 0; font-weight: 300; letter-spacing: 2px; font-size: 1rem; text-transform: uppercase; opacity: 0.8; }
+        .total-amount { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
+        
+        .content { padding: 30px; }
+        .instruction { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.5; }
+
+        .method-box { 
+            background: #f9f9f9; border: 1px solid #eee; border-radius: 16px; 
+            padding: 20px; margin-bottom: 15px; position: relative; transition: 0.3s;
+        }
+        .method-box:hover { border-color: var(--gold); }
+        .method-label { font-size: 0.75rem; color: var(--gold); font-weight: bold; text-transform: uppercase; }
+        .method-value { font-size: 1.3rem; font-weight: bold; display: block; margin-top: 5px; color: #222; }
+        
+        .copy-btn { 
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            background: #eee; border: none; padding: 8px 12px; border-radius: 8px; 
+            font-size: 0.7rem; cursor: pointer; transition: 0.2s;
+        }
+        .copy-btn:hover { background: var(--primary); color: white; }
+
+        .confirm-btn { 
+            width: 100%; padding: 18px; background: var(--primary); color: white; border: none; 
+            border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s;
+        }
+        .confirm-btn:hover { background: #333; letter-spacing: 1px; }
+        
+        .cancel-link { display: block; text-align: center; margin-top: 15px; color: #999; text-decoration: none; font-size: 0.8rem; }
+    </style>
 </head>
 <body>
-<div class="card">
-    <h2>Order #${orderNum}</h2>
-    <h1 style="color:#28a745;">Total: <span id="totalVal"></span> EGP</h1>
-    <p>Please transfer at least 50% to confirm your order:</p>
-    <div style="background:#eee; padding:20px; border-radius:10px; margin:20px 0;">
-        <strong>Vodafone Cash / InstaPay</strong><br>
-        <span style="font-size:1.5rem;">01015653338</span>
+
+<div class="payment-card">
+    <div class="header">
+        <h2>Order Payment</h2>
+        <div class="total-amount"><span id="totalVal">0</span> <small style="font-size: 1rem;">EGP</small></div>
+        <div style="font-size: 0.8rem; opacity: 0.7;">Order ID: <span id="orderNum"></span></div>
     </div>
-    <button onclick="finish()" style="padding:15px 40px; background:black; color:white; border:none; border-radius:8px; cursor:pointer;">I have transferred</button>
+
+    <div class="content">
+        <p class="instruction">
+            To finalize your order, please transfer the total amount (or 50% deposit) to one of the following accounts:
+        </p>
+
+        <div class="method-box">
+            <span class="method-label">Vodafone Cash</span>
+            <span class="method-value" id="vodaNum">01015653338</span>
+            <button class="copy-btn" onclick="copyText('01015653338')">Copy</button>
+        </div>
+
+        <div class="method-box">
+            <span class="method-label">InstaPay / Bank</span>
+            <span class="method-value">01015653338</span>
+            <button class="copy-btn" onclick="copyText('01015653338')">Copy</button>
+        </div>
+
+        <button class="confirm-btn" onclick="goToConfirmation()">I've Made the Transfer</button>
+        <a href="index.html" class="cancel-link">Cancel & Return to Store</a>
+    </div>
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-document.body.innerHTML = document.body.innerHTML.replace('${orderNum}', params.get('order'));
-document.getElementById("totalVal").innerText = params.get('total');
-function finish(){ window.location.href = `confirmation.html?order=${params.get('order')}`; }
+    const params = new URLSearchParams(window.location.search);
+    const orderID = params.get('order');
+    const total = params.get('total');
+
+    document.getElementById("orderNum").innerText = orderID;
+    document.getElementById("totalVal").innerText = total;
+
+    function copyText(text) {
+        navigator.clipboard.writeText(text);
+        alert("Number copied to clipboard!");
+    }
+
+    function goToConfirmation() {
+        // We pass the order ID so confirmation page can use it for WhatsApp
+        window.location.href = `confirmation.html?order=${orderID}`;
+    }
 </script>
+
 </body>
 </html>
