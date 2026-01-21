@@ -86,17 +86,20 @@ function render(){
       p.querySelector(".increase").addEventListener("click", ()=>{
         item.qty++;
         localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartIcon(); // تحديث العداد فورًا
         render();
       });
       p.querySelector(".decrease").addEventListener("click", ()=>{
         if(item.qty>1) item.qty--;
         else cart = cart.filter((_, idx) => idx !== i);
         localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartIcon(); // تحديث العداد فورًا
         render();
       });
       p.querySelector(".remove").addEventListener("click", ()=>{
         cart = cart.filter((_, idx) => idx !== i);
         localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartIcon(); // تحديث العداد فورًا
         render();
       });
     });
@@ -154,4 +157,5 @@ function addToCart(product){
 
 </body>
 </html>
+
 
