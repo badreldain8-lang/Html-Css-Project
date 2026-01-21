@@ -74,17 +74,9 @@ function render(){
   document.getElementById("shipping").innerText = shippingCost;
   document.getElementById("total").innerText = subtotal+shippingCost;
 
-  // تحديث LocalStorage والعداد
-  localStorage.setItem("cart", JSON.stringify(cart));
-  updateCartIcon();
+  localStorage.setItem("cart", JSON.stringify(cart)); // تحديث دائم
+updateCartIcon(); // تحديث العداد مباشرة بعد أي تعديل
 }
-
-function removeItem(i){
-  cart.splice(i,1); // حذف المنتج
-  localStorage.setItem("cart", JSON.stringify(cart)); // تحديث LocalStorage فورًا
-  render(); // تحديث المنتجات، subtotal، الشحن
-}
-
 
 function increaseQty(i){
   cart[i].qty++;
@@ -99,6 +91,11 @@ function decreaseQty(i){
   render();
 }
 
+  function removeItem(i){
+  cart.splice(i,1);
+  render();
+}
+  
 function goCheckout(){
   const gov = document.getElementById("governorate").value;
   if(cart.length===0){
