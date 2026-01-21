@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Final Confirmation</title>
+    <title>Order Verification</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 80px 20px; background: #f8f9fa; }
         .card { background: white; max-width: 500px; margin: auto; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
@@ -13,37 +13,54 @@
 
 <div class="card">
     <div style="font-size: 60px;">📱</div>
-    <h2>Send Proof via WhatsApp</h2>
-    <p>Click the button below. In WhatsApp, <strong>paste the message and attach your transfer screenshot</strong>.</p>
+    <h2>Send Final Verification</h2>
+    <p>Click below to open WhatsApp. <br><strong>Remember to attach your screenshot!</strong></p>
 
-    <button class="wa-btn" onclick="sendToWhatsApp()">Send Details & Screenshot</button>
+    <button class="wa-btn" onclick="sendToWhatsApp()">Send to WhatsApp 📱</button>
 </div>
 
 <script>
     function sendToWhatsApp() {
         const params = new URLSearchParams(window.location.search);
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const user = JSON.parse(localStorage.getItem("customerDetails")) || {};
-        const city = localStorage.getItem("selectedGovernorate");
-        const total = localStorage.getItem("tempTotal");
-        const payType = localStorage.getItem("paymentChoice"); // Full or Half
+        const orderID = params.get('order');
+        
+        // Retrieve data
+        const cart = JSON.parse(localStorage.getItem("cart"));
+        const user = JSON.parse(localStorage.getItem("customerDetails")) || {name: "Customer", addr: "N/A", phone: "N/A"};
+        const city = localStorage.getItem("selectedGovernorate") || "N/A";
+        const total = localStorage.getItem("tempTotal") || "0";
+        const payType = localStorage.getItem("paymentChoice") || "Not Specified";
 
-        let items = cart.map(i => `- ${i.name} (${i.size}) x${i.qty}`).join("%0A");
+        // FIX: If the cart is null or empty, tell the user to go back to shop
+        if (!cart || cart.length === 0) {
+            alert("Your cart appears to be empty. Please go back to the shop to add items.");
+            window.location.href = "index.html";
+            return;
+        }
 
-        const msg = `*NEW ORDER VERIFICATION* ✅%0A%0A` +
-                    `*Order ID:* ${params.get('order')}%0A` +
+        // Format Items List
+        let itemsList = cart.map((i, index) => `${index + 1}. *${i.name}* (Size: ${i.size}) x${i.qty}`).join("%0A");
+
+        // Build Message
+        const msg = `*ORDER VERIFICATION* ✅%0A%0A` +
+                    `*Order ID:* ${orderID}%0A` +
                     `*Customer:* ${user.name}%0A` +
                     `*Address:* ${user.addr}, ${city}%0A` +
                     `--------------------------%0A` +
-                    `*Items:*%0A${items}%0A` +
+                    `*Items Ordered:*%0A${itemsList}%0A` +
                     `--------------------------%0A` +
                     `*Total Price:* ${total} EGP%0A` +
-                    `*Payment Sent:* ${payType}%0A` + // <--- This shows Full or Half
+                    `*Payment Type:* ${payType}%0A` +
                     `--------------------------%0A` +
-                    `_I have attached my screenshot below._`;
+                    `_I have attached my transfer screenshot below._`;
 
-        localStorage.removeItem("cart");
-        window.location.href = `https://wa.me/201015653338?text=${msg}`;
+        const waNum = "201015653338";
+        
+        // We only clear the cart AFTER the user is sent to WhatsApp
+        // Optional: If you want them to be able to go back, comment out the line below
+        // localStorage.removeItem("cart"); 
+        
+        window.location.href = `https://wa.me/${waNum}?text=${msg}`;
     }
 </script>
 </body>
