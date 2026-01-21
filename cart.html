@@ -9,7 +9,7 @@ h1 { text-align:center; }
 #items { margin-top:20px; }
 .item { display:flex; justify-content:space-between; align-items:center; background:#fff; margin-bottom:10px; padding:10px; border-radius:5px; }
 .item-left { display:flex; align-items:center; }
-.item-left img { width:50px; height:50px; margin-left:10px; } /* Changed margin to left for RTL */
+.item-left img { width:50px; height:50px; margin-left:10px; }
 .qty-controls { display:flex; align-items:center; }
 .qty-controls button { margin:0 5px; padding:5px 10px; cursor:pointer; }
 .qty-controls input { width:30px; text-align:center; }
@@ -40,12 +40,15 @@ h1 { text-align:center; }
 </div>
 
 <script>
+// 1. إنشاء قناة التواصل (اللاسلكي)
+const cartChannel = new BroadcastChannel('cart_updates');
+
 let box = document.getElementById("items");
 
-// تحديث عداد السلة
+// تحديث عداد السلة في هذه الصفحة
 function updateCartIcon(){
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const count = cart.reduce((sum,item)=>sum + item.qty,0);
+  const count = cart.reduce((sum,item)=>sum + (Number(item.qty) || 0),0);
   document.getElementById("cartCount").innerText = count;
 }
 
@@ -78,28 +81,31 @@ function render(){
       `;
       box.appendChild(p);
 
+      // زر الزيادة
       p.querySelector(".increase").addEventListener("click", ()=>{
         cart[i].qty++;
-        localStorage.setItem("cart", JSON.stringify(cart));
-        render();
+        saveAndUpdate(cart);
       });
+
+      // زر النقص
       p.querySelector(".decrease").addEventListener("click", ()=>{
         if(cart[i].qty > 1){
           cart[i].qty--;
         } else {
           cart.splice(i,1);
         }
-        localStorage.setItem("cart", JSON.stringify(cart));
-        render();
+        saveAndUpdate(cart);
       });
+
+      // زر الحذف
       p.querySelector(".remove").addEventListener("click", ()=>{
         cart.splice(i,1);
-        localStorage.setItem("cart", JSON.stringify(cart));
-        render();
+        saveAndUpdate(cart);
       });
     });
   }
 
+  // حساب الشحن
   const gov = document.getElementById("governorate").value || "";
   shippingCost = gov==='cairo'?50:gov==='giza'?60:gov==='alex'?70:gov==='other'?80:0;
 
@@ -107,6 +113,14 @@ function render(){
   document.getElementById("total").innerText = subtotal + shippingCost;
 
   updateCartIcon();
+}
+
+// دالة لحفظ البيانات وإرسال إشارة التحديث لصفحة الـ Index
+function saveAndUpdate(cartArray) {
+  localStorage.setItem("cart", JSON.stringify(cartArray));
+  // إرسال رسالة لكل الصفحات الأخرى لتحديث عدادها فوراً
+  cartChannel.postMessage('update'); 
+  render();
 }
 
 document.getElementById("governorate").addEventListener("change", render);
@@ -127,24 +141,22 @@ function goCheckout(){
 }
 
 function openCart(){
-  // If we are already on cart.html, just re-render
   render();
 }
 
-// Listen for changes from other tabs
-window.addEventListener('storage', (e)=>{
-  if(e.key === 'cart'){
+// استقبال التحديثات لو تم تغيير شيء من تاب آخر
+cartChannel.onmessage = (event) => {
+  if (event.data === 'update') {
     render();
   }
-});
+};
 
-// IMPORTANT: This handles the "Back" button refresh
-window.addEventListener('pageshow', (event) => {
-    render();
-});
+// ضمان التحديث عند استخدام أزرار المتصفح (للخلف وللأمام)
+window.addEventListener('pageshow', render);
 
 render();
 </script>
+
 </body>
 </html>
 
