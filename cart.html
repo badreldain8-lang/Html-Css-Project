@@ -106,6 +106,28 @@ function render() {
     });
   }
 
+  function increaseQty(i){
+  cart[i].qty++;
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartIcon(); // تحديث العداد فورًا
+  render();
+}
+
+function decreaseQty(i){
+  if(cart[i].qty > 1) cart[i].qty--;
+  else cart = cart.filter((_, index) => index !== i);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartIcon(); // تحديث العداد فورًا
+  render();
+}
+
+function removeItem(i){
+  cart = cart.filter((_, index) => index !== i);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartIcon(); // تحديث العداد فورًا
+  render();
+}
+
   // حساب الشحن بعد اختيار المحافظة
   const gov = document.getElementById("governorate").value;
   if(gov==='cairo') shippingCost=50;
