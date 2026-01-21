@@ -6,36 +6,37 @@
     <title>VELOCITY | Coming Soon</title>
     <link rel="icon" type="image/png" href="https://i.postimg.cc/85zX6pX6/velocity-logo.png">
     <style>
-        :root { --accent: #0071e3; }
+        :root { --accent: #0071e3; --insta: #E1306C; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: -apple-system, sans-serif; overflow: hidden; color: white; display: flex; align-items: center; justify-content: center; }
 
-        /* Animated Background */
         .bg-gradient { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #111 0%, #000 100%); z-index: -1; }
-        .logo-glow { position: absolute; width: 300px; height: 300px; background: var(--accent); filter: blur(150px); opacity: 0.2; border-radius: 50%; animation: pulse 6s infinite; }
+        .logo-glow { position: absolute; width: 300px; height: 300px; background: var(--accent); filter: blur(150px); opacity: 0.15; border-radius: 50%; animation: pulse 6s infinite; }
 
         .container { text-align: center; padding: 20px; z-index: 10; width: 90%; max-width: 500px; }
 
-        /* The Creative Sign */
-        .logo-icon { background: #fff; color: #000; display: inline-block; padding: 10px 25px; font-weight: 900; font-style: italic; font-size: 3rem; border-radius: 8px; transform: skewX(-15deg); margin-bottom: 20px; animation: slideIn 1s ease-out; }
+        .logo-icon { background: #fff; color: #000; display: inline-block; padding: 10px 25px; font-weight: 900; font-style: italic; font-size: 3.5rem; border-radius: 8px; transform: skewX(-15deg); margin-bottom: 20px; }
         
-        h1 { font-size: 1.5rem; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 10px; font-weight: 300; }
-        p { color: #888; font-size: 1rem; margin-bottom: 40px; }
+        h1 { font-size: 1.8rem; letter-spacing: 8px; text-transform: uppercase; margin: 0; font-weight: 300; }
+        .tagline { color: #888; font-size: 0.9rem; margin: 10px 0 40px; letter-spacing: 2px; }
 
-        /* Live Countdown */
-        .timer { display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; }
-        .t-segment { display: flex; flex-direction: column; }
-        .t-num { font-size: 2rem; font-weight: 800; }
-        .t-label { font-size: 0.6rem; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; }
+        /* Timer */
+        .timer { display: flex; justify-content: center; gap: 20px; margin-bottom: 50px; }
+        .t-segment { display: flex; flex-direction: column; min-width: 60px; }
+        .t-num { font-size: 2.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .t-label { font-size: 0.6rem; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-top: 5px; }
 
-        /* Action Box */
-        .notify-box { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        input { background: transparent; border: none; border-bottom: 2px solid #333; padding: 10px; color: white; width: 70%; text-align: center; font-size: 1rem; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--accent); }
-        .btn { background: white; color: black; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 700; margin-top: 20px; cursor: pointer; transition: 0.3s; }
-        .btn:hover { background: var(--accent); color: white; }
+        /* Social Buttons */
+        .actions { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        
+        .btn { width: 100%; max-width: 280px; padding: 16px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.95rem; border: none; }
+        
+        .btn-insta { background: transparent; border: 2px solid #fff; color: #fff; }
+        .btn-insta:hover { background: #fff; color: #000; }
+        
+        .btn-wa { background: #25D366; color: #fff; }
+        .btn-wa:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2); }
 
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.2; } 50% { transform: scale(1.3); opacity: 0.4; } }
-        @keyframes slideIn { from { transform: skewX(-15deg) translateX(-100px); opacity: 0; } to { transform: skewX(-15deg) translateX(0); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.15; } 50% { transform: scale(1.4); opacity: 0.3; } }
     </style>
 </head>
 <body>
@@ -45,8 +46,8 @@
 
     <div class="container">
         <div class="logo-icon">V</div>
-        <h1>Velocity</h1>
-        <p>THE NEW SPEED OF STREETWEAR</p>
+        <h1>VELOCITY</h1>
+        <p class="tagline">DROP 01 COMING SOON</p>
 
         <div class="timer">
             <div class="t-segment"><span class="t-num" id="days">00</span><span class="t-label">Days</span></div>
@@ -55,33 +56,43 @@
             <div class="t-segment"><span class="t-num" id="secs">00</span><span class="t-label">Secs</span></div>
         </div>
 
-        <div class="notify-box">
-            <input type="text" placeholder="Enter WhatsApp Number">
-            <br>
-            <button class="btn" onclick="alert('We will notify you on WhatsApp!')">GET EARLY ACCESS</button>
+        <div class="actions">
+            <a href="https://instagram.com/velo.city590" target="_blank" class="btn btn-insta">
+                FOLLOW US @velo.city590
+            </a>
+
+            <a href="https://wa.me/201015653338?text=I%20want%20to%20be%20notified%20about%20the%20Velocity%20drop!" target="_blank" class="btn btn-wa">
+                WHATSAPP EARLY ACCESS
+            </a>
         </div>
-        
-        <p style="margin-top: 30px; font-size: 0.8rem;">Follow us @Velocity.eg</p>
     </div>
 
     <script>
-        // Set your launch date here (Year, Month (0-11), Day, Hour, Minute)
-        const launchDate = new Date("Feb 1, 2026 00:00:00").getTime();
+        // Set your launch date here
+        const launchDate = new Date("Feb 10, 2026 00:00:00").getTime();
 
-        setInterval(() => {
+        function updateTimer() {
             const now = new Date().getTime();
             const diff = launchDate - now;
+
+            if (diff <= 0) {
+                document.querySelector('.timer').innerHTML = "LIVES NOW";
+                return;
+            }
 
             const d = Math.floor(diff / (1000 * 60 * 60 * 24));
             const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const s = Math.floor((diff % (1000 * 60)) / 1000);
 
-            document.getElementById("days").innerHTML = d < 10 ? "0"+d : d;
-            document.getElementById("hours").innerHTML = h < 10 ? "0"+h : h;
-            document.getElementById("mins").innerHTML = m < 10 ? "0"+m : m;
-            document.getElementById("secs").innerHTML = s < 10 ? "0"+s : s;
-        }, 1000);
+            document.getElementById("days").innerText = d < 10 ? "0"+d : d;
+            document.getElementById("hours").innerText = h < 10 ? "0"+h : h;
+            document.getElementById("mins").innerText = m < 10 ? "0"+m : m;
+            document.getElementById("secs").innerText = s < 10 ? "0"+s : s;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
     </script>
 </body>
 </html>
