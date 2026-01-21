@@ -6,62 +6,49 @@
 </head>
 <body>
 
-<h2>إتمام الطلب</h2>
+<h2>إكمال بيانات العميل</h2>
 
-<label>اختر المحافظة:</label>
-<select id="governorate" onchange="updateShipping()">
-  <option value="">-- اختر --</option>
-  <option value="cairo">القاهرة</option>
-  <option value="giza">الجيزة</option>
-  <option value="alex">الإسكندرية</option>
-  <option value="other">باقي المحافظات</option>
-</select>
-
-<p>سعر الشحن: <span id="shipping">0</span> جنيه</p>
-<p>الإجمالي: <span id="total">0</span> جنيه</p>
-
-<button onclick="goPayment()">تأكيد الطلب</button>
-<br><br>
-<button onclick="openWhatsApp()">إرسال على واتساب</button>
+<form id="checkoutForm">
+  <label>الاسم:</label><br>
+  <input type="text" id="customerName"><br>
+  <label>العنوان:</label><br>
+  <input type="text" id="customerAddress"><br>
+  <label>رقم الهاتف:</label><br>
+  <input type="text" id="customerPhone"><br>
+  <label>المحافظة:</label><br>
+  <input type="text" id="customerGovernorate" readonly><br><br>
+  <button type="button" onclick="confirmOrder()">تأكيد الطلب</button>
+</form>
 
 <script>
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let subtotal = cart.reduce((sum,item)=>sum+item.price,0);
-let shippingCost = 0;
+const cart = JSON.parse(localStorage.getItem("cart")) || [];
+const gov = localStorage.getItem("selectedGovernorate");
+document.getElementById("customerGovernorate").value = gov;
 
-function updateShipping(){
-  const gov = document.getElementById("governorate").value;
-  if(gov==='cairo') shippingCost=50;
-  else if(gov==='giza') shippingCost=60;
-  else if(gov==='alex') shippingCost=70;
-  else if(gov==='other') shippingCost=80;
-  else shippingCost=0;
+function confirmOrder(){
+  const name = document.getElementById("customerName").value;
+  const address = document.getElementById("customerAddress").value;
+  const phone = document.getElementById("customerPhone").value;
 
-  document.getElementById("shipping").innerText = shippingCost;
-  document.getElementById("total").innerText = subtotal+shippingCost;
-}
+  if(!name || !address || !phone){
+    alert("اكمل كل البيانات");
+    return;
+  }
 
-// Initialize total
-updateShipping();
-
-// توليد رقم أوردر تلقائي
-let orderNumber = Math.floor(Math.random()*1000000);
-
-function goPayment(){
-  // حفظ الأوردر في LocalStorage
   let orders = JSON.parse(localStorage.getItem("orders")) || [];
-  orders.push({orderNumber, cart, total: subtotal+shippingCost});
+  const orderNumber = Math.floor(Math.random()*1000000);
+
+  orders.push({
+    orderNumber,
+    cart,
+    customer: {name,address,phone,gov}
+  });
+
   localStorage.setItem("orders", JSON.stringify(orders));
+  localStorage.removeItem("cart");
+  localStorage.removeItem("selectedGovernorate");
 
-  window.location.href="payment.html?order="+orderNumber;
-}
-
-function openWhatsApp(){
-  let phone = "201015653338"; // رقمك
-  let msg = encodeURIComponent(
-    "تم التحويل، ودي سكرين التحويل + الرقم اللي تم التحويل منه"
-  );
-  window.location.href = `https://wa.me/${phone}?text=${msg}`;
+  window.location.href="payment-confirmation.html?order="+orderNumber;
 }
 </script>
 
