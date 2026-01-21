@@ -2,43 +2,49 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Cart</title>
+<title>سلة الشراء</title>
 <style>
-body { font-family: Arial; background:#f5f5f5; margin:20px; }
-img { width:80px; vertical-align:middle; margin-right:10px; }
-button { padding:5px 10px; cursor:pointer; margin-left:5px; }
-.qty { width:30px; text-align:center; }
+  .cart-icon { position: fixed; top: 10px; right: 10px; }
+  .cart-icon span { background: red; color: white; padding: 2px 6px; border-radius: 50%; }
+  p { margin-bottom: 10px; }
+  img { width: 50px; height: 50px; vertical-align: middle; margin-right: 5px; }
+  button { margin: 0 2px; }
 </style>
 </head>
 <body>
 
-<h2>🛒 السلة</h2>
-<div id="items"></div>
+<h1>سلة الشراء</h1>
 
-<p>اختر المحافظة للشحن:</p>
 <select id="governorate">
-  <option value="">-- اختر --</option>
+  <option value="">اختر المحافظة</option>
   <option value="cairo">القاهرة</option>
   <option value="giza">الجيزة</option>
   <option value="alex">الإسكندرية</option>
-  <option value="other">باقي المحافظات</option>
+  <option value="other">أخرى</option>
 </select>
 
-<p>سعر الشحن: <span id="shipping">0</span> جنيه</p>
-<p>الإجمالي: <span id="total">0</span> جنيه</p>
+<div id="items"></div>
 
-  <!-- أيقونة Cart مع العداد -->
-<div class="cart-icon" onclick="openCart()">
+<p>الشحن: <span id="shipping">0</span> جنيه</p>
+<p>المجموع: <span id="total">0</span> جنيه</p>
+
+<button onclick="goCheckout()">إكمال الطلب</button>
+
+<div class="cart-icon">
   🛒 <span id="cartCount">0</span>
 </div>
-  
-<button onclick="goCheckout()">إكمال الطلب</button>
 
 <script>
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let box = document.getElementById("items");
 let subtotal = 0;
 let shippingCost = 0;
+
+// تحديث العداد حسب مجموع الكميات
+function updateCartIcon(){
+  const count = cart.reduce((sum,item)=>sum + (item.qty || 0),0);
+  document.getElementById("cartCount").innerText = count;
+}
 
 function render(){
   const gov = document.getElementById("governorate").value;
@@ -52,7 +58,6 @@ function render(){
     cart.forEach((item,i)=>{
       subtotal += item.price * item.qty;
 
-      // إنشاء عنصر p لكل منتج
       const p = document.createElement("p");
       p.innerHTML = `
         <img src="${item.img}" alt="${item.name}">
@@ -64,27 +69,26 @@ function render(){
       `;
       box.appendChild(p);
 
-      // ربط الأزرار مباشرة
+      // ربط الأزرار مباشرة بالمنتج الحالي
       p.querySelector(".increase").addEventListener("click", ()=>{
-    cart[i].qty++;
-    localStorage.setItem("cart", JSON.stringify(cart)); // تحديث LocalStorage فورًا
-    render();
-});
+        cart[i].qty++;
+        localStorage.setItem("cart", JSON.stringify(cart));
+        render();
+      });
 
+      p.querySelector(".decrease").addEventListener("click", ()=>{
+        if(cart[i].qty > 1) cart[i].qty--;
+        else cart.splice(i,1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        render();
+      });
 
-p.querySelector(".decrease").addEventListener("click", ()=>{
-    if(cart[i].qty > 1) cart[i].qty--;
-    else cart.splice(i,1);
-    localStorage.setItem("cart", JSON.stringify(cart)); // تحديث فورًا بعد أي حذف/نقص
-    render();
-});
-
-p.querySelector(".remove").addEventListener("click", ()=>{
-    cart.splice(i,1);
-    localStorage.setItem("cart", JSON.stringify(cart)); // تحديث فورًا بعد أي حذف
-    render();
-});
-
+      p.querySelector(".remove").addEventListener("click", ()=>{
+        cart.splice(i,1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        render();
+      });
+    });
   }
 
   // حساب الشحن
@@ -95,15 +99,19 @@ p.querySelector(".remove").addEventListener("click", ()=>{
   else shippingCost=0;
 
   document.getElementById("shipping").innerText = shippingCost;
-  document.getElementById("total").innerText = subtotal+shippingCost;
+  document.getElementById("total").innerText = subtotal + shippingCost;
 
-  localStorage.setItem("cart", JSON.stringify(cart));
   updateCartIcon();
+  localStorage.setItem("cart", JSON.stringify(cart));
 }
 
+// عند تغيير المحافظة يحدث الشحن + المجموع
+document.getElementById("governorate").addEventListener("change", render);
+
+// دالة الانتقال لصفحة checkout
 function goCheckout(){
   const gov = document.getElementById("governorate").value;
-  if(cart.length===0){
+  if(cart.length === 0){
     alert("السلة فاضية");
     return;
   }
@@ -115,17 +123,12 @@ function goCheckout(){
   window.location.href="checkout.html";
 }
 
-
 // استدعاء render عند فتح الصفحة
 render();
-
-  function updateCartIcon(){
-  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
-  document.getElementById("cartCount").innerText = count;
-}
-// تحديث الشحن عند تغيير المحافظة
-document.getElementById("governorate").addEventListener("change", render);
 </script>
+
+</body>
+</html>
 
 
 </body>
