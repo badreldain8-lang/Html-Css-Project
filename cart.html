@@ -66,21 +66,24 @@ function render(){
 
       // ربط الأزرار مباشرة
       p.querySelector(".increase").addEventListener("click", ()=>{
-        cart[i].qty++;
-        render();
-      });
+    cart[i].qty++;
+    localStorage.setItem("cart", JSON.stringify(cart)); // تحديث LocalStorage فورًا
+    render();
+});
 
-      p.querySelector(".decrease").addEventListener("click", ()=>{
-        if(cart[i].qty > 1) cart[i].qty--;
-        else cart.splice(i,1);
-        render();
-      });
+p.querySelector(".decrease").addEventListener("click", ()=>{
+    if(cart[i].qty > 1) cart[i].qty--;
+    else cart.splice(i,1);
+    localStorage.setItem("cart", JSON.stringify(cart)); // تحديث فورًا بعد أي حذف/نقص
+    render();
+});
 
-      p.querySelector(".remove").addEventListener("click", ()=>{
-        cart.splice(i,1);
-        render();
-      });
-    });
+p.querySelector(".remove").addEventListener("click", ()=>{
+    cart.splice(i,1);
+    localStorage.setItem("cart", JSON.stringify(cart)); // تحديث فورًا بعد أي حذف
+    render();
+});
+
   }
 
   // حساب الشحن
@@ -97,25 +100,6 @@ function render(){
   updateCartIcon();
 }
 
-
-function increaseQty(i){
-  cart[i].qty++;
-  localStorage.setItem("cart", JSON.stringify(cart));
-  render();
-}
-  
-function decreaseQty(i){
-  if(cart[i].qty>1) cart[i].qty--;
-  else cart.splice(i,1);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  render();
-}
-
-  function removeItem(i){
-  cart.splice(i,1);
-  render();
-}
-  
 function goCheckout(){
   const gov = document.getElementById("governorate").value;
   if(cart.length===0){
