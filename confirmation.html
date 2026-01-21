@@ -2,29 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Confirm Order</title>
-    <style>body{text-align:center; font-family:sans-serif; padding:100px 20px;}</style>
+    <title>Final Confirmation</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 80px 20px; background: #f8f9fa; }
+        .card { background: white; max-width: 500px; margin: auto; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .wa-btn { background: #25D366; color: white; border: none; padding: 18px 30px; border-radius: 50px; font-weight: bold; font-size: 1.1rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <div style="font-size:80px">✅</div>
-    <h2>Last Step!</h2>
-    <p>Click below to send your order details and screenshot to our WhatsApp.</p>
-    <button onclick="sendWA()" style="padding:15px 30px; background:#25D366; color:white; border:none; border-radius:50px; font-weight:bold; cursor:pointer;">Send to WhatsApp 📱</button>
+
+<div class="card">
+    <div style="font-size: 60px;">📱</div>
+    <h2>Send Proof via WhatsApp</h2>
+    <p>Click the button below. In WhatsApp, <strong>paste the message and attach your transfer screenshot</strong>.</p>
+
+    <button class="wa-btn" onclick="sendToWhatsApp()">Send Details & Screenshot</button>
+</div>
 
 <script>
-function sendWA() {
-    const params = new URLSearchParams(window.location.search);
-    const cart = JSON.parse(localStorage.getItem("cart"));
-    const user = JSON.parse(localStorage.getItem("customerDetails"));
-    const city = localStorage.getItem("selectedGovernorate");
-    const total = localStorage.getItem("tempTotal");
+    function sendToWhatsApp() {
+        const params = new URLSearchParams(window.location.search);
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const user = JSON.parse(localStorage.getItem("customerDetails")) || {};
+        const city = localStorage.getItem("selectedGovernorate");
+        const total = localStorage.getItem("tempTotal");
+        const payType = localStorage.getItem("paymentChoice"); // Full or Half
 
-    let items = cart.map(i => `- ${i.name} (${i.size}) x${i.qty}`).join("%0A");
-    const msg = `*NEW ORDER* ✅%0A%0A*ID:* ${params.get('order')}%0A*Name:* ${user.name}%0A*Phone:* ${user.phone}%0A*Address:* ${user.addr}, ${city}%0A%0A*Items:*%0A${items}%0A%0A*Paid:* ${total} EGP%0A%0A_I am sending the screenshot below._`;
-    
-    localStorage.removeItem("cart");
-    window.location.href = `https://wa.me/201015653338?text=${msg}`;
-}
+        let items = cart.map(i => `- ${i.name} (${i.size}) x${i.qty}`).join("%0A");
+
+        const msg = `*NEW ORDER VERIFICATION* ✅%0A%0A` +
+                    `*Order ID:* ${params.get('order')}%0A` +
+                    `*Customer:* ${user.name}%0A` +
+                    `*Address:* ${user.addr}, ${city}%0A` +
+                    `--------------------------%0A` +
+                    `*Items:*%0A${items}%0A` +
+                    `--------------------------%0A` +
+                    `*Total Price:* ${total} EGP%0A` +
+                    `*Payment Sent:* ${payType}%0A` + // <--- This shows Full or Half
+                    `--------------------------%0A` +
+                    `_I have attached my screenshot below._`;
+
+        localStorage.removeItem("cart");
+        window.location.href = `https://wa.me/201015653338?text=${msg}`;
+    }
 </script>
 </body>
 </html>
