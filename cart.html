@@ -36,11 +36,13 @@ let subtotal = 0;
 let shippingCost = 0;
 
 function render(){
+  const gov = document.getElementById("governorate").value;
   box.innerHTML = "";
   subtotal = 0;
 
   if(cart.length === 0){
     box.innerHTML = "السلة فاضية";
+    shippingCost = 0;
   } else {
     cart.forEach((item,i)=>{
       subtotal += item.price * (item.qty || 1);
@@ -57,6 +59,21 @@ function render(){
     });
   }
 
+  // حساب الشحن
+  if(gov==='cairo') shippingCost=50;
+  else if(gov==='giza') shippingCost=60;
+  else if(gov==='alex') shippingCost=70;
+  else if(gov==='other') shippingCost=80;
+  else shippingCost=0;
+
+  document.getElementById("shipping").innerText = shippingCost;
+  document.getElementById("total").innerText = subtotal+shippingCost;
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartIcon();
+}
+
+
   document.getElementById("total").innerText = subtotal+shippingCost;
   localStorage.setItem("cart", JSON.stringify(cart));
   updateCartIcon();
@@ -64,22 +81,19 @@ function render(){
 
 function removeItem(i){
   cart.splice(i,1);
-  localStorage.setItem("cart", JSON.stringify(cart)); // تحديث LocalStorage فوراً
-  render();
+  render(); // تحديث كامل بعد الحذف
 }
 
 
 function increaseQty(i){
   cart[i].qty++;
-  localStorage.setItem("cart", JSON.stringify(cart));
-  render();
+  render(); // تحديث كامل بعد الزيادة
 }
 
 function decreaseQty(i){
   if(cart[i].qty>1) cart[i].qty--;
   else cart.splice(i,1);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  render();
+  render(); // تحديث كامل بعد النقص
 }
   
 function updateShipping(){
