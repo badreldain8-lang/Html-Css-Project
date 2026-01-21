@@ -40,28 +40,24 @@ h1 { text-align:center; }
 </div>
 
 <script>
-// جلب السلة من localStorage أو إنشاء واحدة جديدة
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let box = document.getElementById("items");
-let subtotal = 0;
-let shippingCost = 0;
 
 // تحديث عداد السلة
 function updateCartIcon(){
-  const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-  const count = storedCart.reduce((sum,item)=>sum + item.qty,0);
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const count = cart.reduce((sum,item)=>sum + item.qty,0);
   document.getElementById("cartCount").innerText = count;
 }
 
 // رسم المنتجات داخل السلة
 function render(){
-  cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let subtotal = 0;
+  let shippingCost = 0;
   box.innerHTML = "";
-  subtotal = 0;
 
   if(cart.length === 0){
     box.innerHTML = "<p>السلة فاضية</p>";
-    shippingCost = 0;
   } else {
     cart.forEach((item, i)=>{
       subtotal += item.price * item.qty;
@@ -82,30 +78,30 @@ function render(){
       `;
       box.appendChild(p);
 
-      // أزرار الزيادة والنقص والحذف
+      // أزرار التحكم
       p.querySelector(".increase").addEventListener("click", ()=>{
-        item.qty++;
+        cart[i].qty++;
         localStorage.setItem("cart", JSON.stringify(cart));
-        updateCartIcon(); // تحديث العداد فورًا
         render();
       });
       p.querySelector(".decrease").addEventListener("click", ()=>{
-        if(item.qty>1) item.qty--;
-        else cart = cart.filter((_, idx) => idx !== i);
+        if(cart[i].qty > 1){
+          cart[i].qty--;
+        } else {
+          cart.splice(i,1);
+        }
         localStorage.setItem("cart", JSON.stringify(cart));
-        updateCartIcon(); // تحديث العداد فورًا
         render();
       });
       p.querySelector(".remove").addEventListener("click", ()=>{
-        cart = cart.filter((_, idx) => idx !== i);
+        cart.splice(i,1);
         localStorage.setItem("cart", JSON.stringify(cart));
-        updateCartIcon(); // تحديث العداد فورًا
         render();
       });
     });
   }
 
-  // حساب الشحن حسب المحافظة
+  // حساب الشحن
   const gov = document.getElementById("governorate").value || "";
   shippingCost = gov==='cairo'?50:gov==='giza'?60:gov==='alex'?70:gov==='other'?80:0;
 
@@ -120,6 +116,7 @@ document.getElementById("governorate").addEventListener("change", render);
 
 // الانتقال لصفحة checkout
 function goCheckout(){
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const gov = document.getElementById("governorate").value;
   if(cart.length===0){
     alert("السلة فاضية");
@@ -138,12 +135,19 @@ function openCart(){
   window.location.href="cart.html";
 }
 
+// تحديث السلة عند أي تغيير في localStorage من تاب آخر
+window.addEventListener('storage', (e)=>{
+  if(e.key === 'cart'){
+    render();
+  }
+});
+
 // استدعاء render عند فتح الصفحة
 render();
 
-// --- مثال دالة Add to Cart يمكن استخدامها في صفحة المنتجات ---
+// --- مثال دالة Add to Cart ---
 function addToCart(product){
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const existing = cart.find(p => p.id === product.id);
   if(existing){
     existing.qty++;
