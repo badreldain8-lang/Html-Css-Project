@@ -71,6 +71,12 @@ function render(){
     render();
 });
 
+function updateCartIcon(){
+  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
+  document.getElementById("cartCount").innerText = count;
+}
+
+
 p.querySelector(".decrease").addEventListener("click", ()=>{
     if(cart[i].qty > 1) cart[i].qty--;
     else cart.splice(i,1);
@@ -114,10 +120,6 @@ function goCheckout(){
   window.location.href="checkout.html";
 }
 
-function updateCartIcon(){
-  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
-  document.getElementById("cartCount").innerText = count;
-}
 
 // استدعاء render عند فتح الصفحة
 render();
