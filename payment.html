@@ -1,30 +1,27 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>الدفع</title>
-<style>body{direction:rtl; text-align:center; padding:20px; font-family:Arial;}</style>
+<title>Payment</title>
+<style>body{text-align:center; padding:50px; font-family:Arial; background:#f4f7f6;} .card{background:white; padding:40px; display:inline-block; border-radius:20px; box-shadow:0 5px 15px rgba(0,0,0,0.05);}</style>
 </head>
 <body>
-<h2>رقم طلبك: <span id="orderNum"></span></h2>
-<h3 style="color:red;">المطلوب تحويله: <span id="totalVal"></span> جنيه</h3>
-
-<p>حول نصف قيمة الطلب (أو المبلغ كاملاً) على:</p>
-<div style="display:flex; justify-content:center; gap:20px;">
-  <div style="border:2px solid #ddd; padding:15px; border-radius:10px;">📱 فودافون كاش<br><b>01015653338</b></div>
-  <div style="border:2px solid #ddd; padding:15px; border-radius:10px;">🏦 InstaPay<br><b>01015653338</b></div>
+<div class="card">
+    <h2>Order #${orderNum}</h2>
+    <h1 style="color:#28a745;">Total: <span id="totalVal"></span> EGP</h1>
+    <p>Please transfer at least 50% to confirm your order:</p>
+    <div style="background:#eee; padding:20px; border-radius:10px; margin:20px 0;">
+        <strong>Vodafone Cash / InstaPay</strong><br>
+        <span style="font-size:1.5rem;">01015653338</span>
+    </div>
+    <button onclick="finish()" style="padding:15px 40px; background:black; color:white; border:none; border-radius:8px; cursor:pointer;">I have transferred</button>
 </div>
-
-<button onclick="finish()" style="margin-top:30px; padding:15px 40px; background:green; color:white; border:none; border-radius:5px; cursor:pointer;">تم التحويل ✅</button>
 
 <script>
 const params = new URLSearchParams(window.location.search);
-document.getElementById("orderNum").innerText = params.get('order');
+document.body.innerHTML = document.body.innerHTML.replace('${orderNum}', params.get('order'));
 document.getElementById("totalVal").innerText = params.get('total');
-
-function finish(){
-    window.location.href = `confirmation.html?order=${params.get('order')}`;
-}
+function finish(){ window.location.href = `confirmation.html?order=${params.get('order')}`; }
 </script>
 </body>
 </html>
