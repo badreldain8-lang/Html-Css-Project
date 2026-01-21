@@ -115,13 +115,14 @@ function goCheckout(){
   window.location.href="checkout.html";
 }
 
-function updateCartIcon(){
-  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
-  document.getElementById("cartCount").innerText = count;
-}
+
 // استدعاء render عند فتح الصفحة
 render();
 
+  function updateCartIcon(){
+  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
+  document.getElementById("cartCount").innerText = count;
+}
 // تحديث الشحن عند تغيير المحافظة
 document.getElementById("governorate").addEventListener("change", render);
 </script>
