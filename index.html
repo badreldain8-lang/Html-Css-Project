@@ -22,7 +22,6 @@ button { padding:8px 12px; cursor:pointer; margin-top:5px; }
   </div>
 </header>
 
-<!-- المنتجات -->
 <div class="product">
   <img src="assets/images/tshirt.jpg" alt="T-Shirt">
   <h3>T-Shirt</h3>
@@ -38,40 +37,48 @@ button { padding:8px 12px; cursor:pointer; margin-top:5px; }
 </div>
 
 <script>
-function addToCart(name, price, img){
-  // اقرأ الكارت الحالي من LocalStorage قبل الإضافة
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  
-  // تحقق إذا المنتج موجود بالفعل
-  const index = cart.findIndex(item => item.name === name);
-  if(index !== -1){
-    cart[index].qty++; // لو موجود زد الكمية
-  } else {
-    cart.push({name, price, img, qty:1}); // لو جديد ضيفه
-  }
-
-  // خزّن النسخة الجديدة
-  localStorage.setItem("cart", JSON.stringify(cart));
-
-  // تحديث العداد حسب مجموع الكميات
-  updateCartCount();
+function updateCartCount(){
+  // Force a fresh read from localStorage
+  const cartData = localStorage.getItem("cart");
+  const cart = cartData ? JSON.parse(cartData) : [];
+  const count = cart.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+  document.getElementById("cartCount").innerText = count;
+  console.log("Cart updated to:", count); // For debugging
 }
 
-function updateCartCount(){
+function addToCart(name, price, img){
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  // اجمع كل الكميات لكل منتج
-  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
-  document.getElementById("cartCount").innerText = count;
+  const index = cart.findIndex(item => item.name === name);
+  
+  if(index !== -1){
+    cart[index].qty++;
+  } else {
+    cart.push({name, price, img, qty:1});
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartCount();
 }
 
 function openCart(){
   window.location.href = "cart.html";
 }
 
-// تحديث العداد عند فتح الصفحة
+// 1. Fix for Back Button (Safari/Chrome/Firefox)
+window.addEventListener('pageshow', function(event) {
+    updateCartCount();
+});
+
+// 2. Fix for switching tabs or returning to the tab
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+        updateCartCount();
+    }
+});
+
+// 3. Initial load
 updateCartCount();
 </script>
-
 
 </body>
 </html>
