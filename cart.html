@@ -8,17 +8,15 @@ body { font-family: Arial; background:#f5f5f5; margin:20px; }
 img { width:80px; vertical-align:middle; margin-right:10px; }
 button { padding:5px 10px; cursor:pointer; margin-left:5px; }
 .qty { width:30px; text-align:center; }
-.form-section { display:none; margin-top:20px; }
 </style>
 </head>
 <body>
 
 <h2>🛒 السلة</h2>
-
 <div id="items"></div>
 
 <p>اختر المحافظة للشحن:</p>
-<select id="governorate" onchange="updateShipping()">
+<select id="governorate">
   <option value="">-- اختر --</option>
   <option value="cairo">القاهرة</option>
   <option value="giza">الجيزة</option>
@@ -29,27 +27,7 @@ button { padding:5px 10px; cursor:pointer; margin-left:5px; }
 <p>سعر الشحن: <span id="shipping">0</span> جنيه</p>
 <p>الإجمالي: <span id="total">0</span> جنيه</p>
 
-<button id="checkoutBtn" onclick="showForm()">إكمال الطلب</button>
-
-<!-- form بيانات العميل -->
-<div class="form-section" id="customerForm">
-  <h3>بيانات العميل</h3>
-  <label>الاسم:</label><br>
-  <input type="text" id="customerName"><br>
-  <label>العنوان:</label><br>
-  <input type="text" id="customerAddress"><br>
-  <label>رقم الهاتف:</label><br>
-  <input type="text" id="customerPhone"><br>
-  <label>المحافظة:</label><br>
-  <select id="customerGovernorate">
-    <option value="">-- اختر --</option>
-    <option value="cairo">القاهرة</option>
-    <option value="giza">الجيزة</option>
-    <option value="alex">الإسكندرية</option>
-    <option value="other">باقي المحافظات</option>
-  </select><br><br>
-  <button onclick="confirmOrder()">تأكيد الطلب</button>
-</div>
+<button onclick="goCheckout()">إكمال الطلب</button>
 
 <script>
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -79,8 +57,9 @@ function render(){
     });
   }
 
-  document.getElementById("total").innerText = subtotal + shippingCost;
+  document.getElementById("total").innerText = subtotal+shippingCost;
   localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartIcon();
 }
 
 function removeItem(i){
@@ -111,51 +90,32 @@ function updateShipping(){
   document.getElementById("total").innerText = subtotal+shippingCost;
 }
 
-// إظهار form بيانات العميل
-function showForm(){
-  if(cart.length === 0){
+function goCheckout(){
+  const gov = document.getElementById("governorate").value;
+  if(cart.length===0){
     alert("السلة فاضية");
     return;
   }
-  document.getElementById("customerForm").style.display="block";
-  document.getElementById("checkoutBtn").style.display="none";
-  // انسخ اختيار المحافظة من cart إلى form
-  document.getElementById("customerGovernorate").value = document.getElementById("governorate").value;
-}
-
-// تأكيد الطلب → حفظ LocalStorage + تحويل للصفحة Payment
-function confirmOrder(){
-  const name = document.getElementById("customerName").value;
-  const address = document.getElementById("customerAddress").value;
-  const phone = document.getElementById("customerPhone").value;
-  const gov = document.getElementById("customerGovernorate").value;
-
-  if(!name || !address || !phone || !gov){
-    alert("اكمل كل البيانات");
+  if(!gov){
+    alert("من فضلك اختر المحافظة أولاً");
     return;
   }
+  localStorage.setItem("selectedGovernorate", gov);
+  window.location.href="checkout.html";
+}
 
-  let orderNumber = Math.floor(Math.random()*1000000);
-  let orders = JSON.parse(localStorage.getItem("orders")) || [];
-  orders.push({
-    orderNumber,
-    cart,
-    total: subtotal+shippingCost,
-    customer:{name,address,phone,gov}
-  });
-  localStorage.setItem("orders", JSON.stringify(orders));
-
-  // تفريغ السلة
-  cart = [];
-  localStorage.setItem("cart", JSON.stringify(cart));
-
-  window.location.href = "payment.html?order="+orderNumber;
+// تحديث رقم Cart icon
+function updateCartIcon(){
+  let count = cart.length;
+  localStorage.setItem("cartCount", count);
 }
 
 render();
+
+// تحديث الشحن عند اختيار المحافظة
+document.getElementById("governorate").addEventListener("change", updateShipping);
 </script>
 
 </body>
 </html>
-
 
