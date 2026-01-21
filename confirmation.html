@@ -1,22 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Success</title>
-<style>body{text-align:center; padding:100px; font-family:Arial;}</style>
+    <meta charset="UTF-8">
+    <title>Confirm Order</title>
+    <style>body{text-align:center; font-family:sans-serif; padding:100px 20px;}</style>
 </head>
 <body>
-    <div style="font-size:80px;">✅</div>
-    <h2>Order Confirmed!</h2>
-    <p>Please send the transfer screenshot via WhatsApp.</p>
-    <button id="whatsappBtn" style="padding:15px 30px; background:#25D366; color:white; border:none; border-radius:50px; cursor:pointer; font-weight:bold;">Send Screenshot via WhatsApp</button>
+    <div style="font-size:80px">✅</div>
+    <h2>Last Step!</h2>
+    <p>Click below to send your order details and screenshot to our WhatsApp.</p>
+    <button onclick="sendWA()" style="padding:15px 30px; background:#25D366; color:white; border:none; border-radius:50px; font-weight:bold; cursor:pointer;">Send to WhatsApp 📱</button>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-document.getElementById("whatsappBtn").onclick = function(){
-    const msg = encodeURIComponent(`Payment for Order #${params.get('order')} is sent. Here is the screenshot.`);
+function sendWA() {
+    const params = new URLSearchParams(window.location.search);
+    const cart = JSON.parse(localStorage.getItem("cart"));
+    const user = JSON.parse(localStorage.getItem("customerDetails"));
+    const city = localStorage.getItem("selectedGovernorate");
+    const total = localStorage.getItem("tempTotal");
+
+    let items = cart.map(i => `- ${i.name} (${i.size}) x${i.qty}`).join("%0A");
+    const msg = `*NEW ORDER* ✅%0A%0A*ID:* ${params.get('order')}%0A*Name:* ${user.name}%0A*Phone:* ${user.phone}%0A*Address:* ${user.addr}, ${city}%0A%0A*Items:*%0A${items}%0A%0A*Paid:* ${total} EGP%0A%0A_I am sending the screenshot below._`;
+    
+    localStorage.removeItem("cart");
     window.location.href = `https://wa.me/201015653338?text=${msg}`;
-};
+}
 </script>
 </body>
 </html>
